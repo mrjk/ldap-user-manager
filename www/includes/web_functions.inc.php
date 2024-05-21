@@ -513,7 +513,7 @@ function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field
   global $ENFORCE_SAFE_SYSTEM_NAMES;
 
   if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE) {
-    $gen_js = "first_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') + last_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')";
+    $gen_js = "first_name.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + ' ' + last_name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')";
   }
   else {
     $gen_js = "first_name + ' ' + last_name";
@@ -530,9 +530,6 @@ function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field
     var first_name = document.getElementById('$firstname_field_id').value;
     var last_name  = document.getElementById('$lastname_field_id').value;
     this_cn = $gen_js;
-
-    check_entity_name_validity(this_cn,'$cn_div_id');
-
     document.getElementById('$cn_field_id').value = this_cn;
   }
 
