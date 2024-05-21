@@ -45,7 +45,7 @@ $group_exists = FALSE;
 
 $create_group_message = "Add members to create the new group";
 $current_members = array();
-$full_dn = $create_group_message;
+$full_dn = False ; //$create_group_message;
 $has_been = "";
 
 $attribute_map = $LDAP['default_group_attribute_map'];
@@ -61,11 +61,27 @@ if (isset($_POST['new_group'])) {
 }
 elseif (isset($_POST['initialise_group'])) {
   $initialise_group = TRUE;
-  $full_dn = "{$LDAP['group_attribute']}=$group_cn,{$LDAP['group_dn']}";
+  $full_dn = "{$LDAP['group_attribute']}=$group_cn,{$LDAP['new_group_dn']}";
   $has_been = "created";
 }
 else {
+
   $this_group = ldap_get_group_entry($ldap_connection,$group_cn);
+
+  // Handle page refresh after POST
+  if (is_bool($this_group)){
+    $group_attribute = $LDAP['group_attribute'];
+    $new_group_cn = (isset($_POST[$group_attribute]) ? $_POST[$group_attribute] : False);
+    if (!is_bool($new_group_cn)){
+      $new_group_cn = urldecode($new_group_cn);
+      $this_group = ldap_get_group_entry($ldap_connection,$new_group_cn);
+
+      if (!is_bool($this_group)){
+        $group_cn = $new_group_cn;
+      }
+    }
+  }
+
   if ($this_group) {
     $current_members = ldap_get_group_members($ldap_connection,$group_cn);
     $full_dn = $this_group[0]['dn'];
@@ -178,6 +194,9 @@ if (isset($_POST["update_members"])) {
 
   if ($group_exists == TRUE) {
 
+    $update_attr = true;
+    $update_name = false;
+
     if ($initialise_group != TRUE and count($to_update) > 0) {
 
       if (isset($this_group[0]['objectclass'])) {
@@ -186,13 +205,57 @@ if (isset($_POST["update_members"])) {
         if ($existing_objectclasses != $LDAP['group_objectclasses']) { $to_update['objectclass'] = $LDAP['group_objectclasses']; }
       }
 
-      $updated_attr = ldap_update_group_attributes($ldap_connection,$group_cn,$to_update);
+      $group_attribute = $LDAP['group_attribute'];
 
-      if ($updated_attr) {
-        render_alert_banner("The group attributes have been updated.");
+      if (array_key_exists($group_attribute, $to_update)) {
+        $dn = $full_dn ;
+        $new_group_identifier = $to_update[$group_attribute][0];
+        $new_rdn = "{$group_attribute}={$new_group_identifier}";
+
+        if ($new_group_identifier != $group_cn) {
+          $duplicates = ldap_get_group_entry($ldap_connection,$new_group_identifier);
+          if (!is_bool($duplicates)){
+            render_alert_banner("Name already taken: {$new_group_identifier}.","danger",15000);
+            $update_attr = false;
+          } else {
+            $update_name = true;
+          }
+        }
       }
-      else {
-        render_alert_banner("There was a problem updating the group attributes.  See the logs for more information.","danger",15000);
+    
+      if ($update_name){
+
+        if ($duplicates == false) {
+
+          $parent_dn = get_parent_dn($dn); // was $LDAP['group_dn']
+          error_log("WebUI: User rename FULL_DN ($group_cn) {$full_dn} to {$new_rdn}");
+          $renamed_entry = ldap_rename($ldap_connection, $dn, $new_rdn, $parent_dn, true);
+          if ($renamed_entry) {
+            $new_dn = "{$new_rdn},{$parent_dn}"; // was $LDAP['group_dn']
+            render_alert_banner("The group has been renamed from {$dn} to {$new_dn}. ($new_group_identifier)");
+
+            $dn = $new_dn;
+            $group_cn = $new_group_identifier;
+            $full_dn = $dn;
+
+          }
+          else {
+            render_alert_banner("There was a problem while renaming group.  See the logs for more information.","danger",15000);
+            ldap_get_option($ldap_connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $detailed_err);
+            error_log("$log_prefix Failed to rename the DN for {$group_cn}: " . ldap_error($ldap_connection) . " -- " . $detailed_err,0);
+          }
+        }
+      }
+
+      if ($update_attr) {
+
+        $updated_attr = ldap_update_group_attributes($ldap_connection,$group_cn,$to_update);
+        if ($updated_attr) {
+          render_alert_banner("The group attributes have been updated.");
+        }
+        else {
+          render_alert_banner("There was a problem updating the group attributes.  See the logs for more information.","danger",15000);
+        }
       }
 
     }
@@ -214,9 +277,11 @@ if (isset($_POST["update_members"])) {
       $group_members = ldap_get_group_members($ldap_connection,$group_cn);
       $non_members = array_diff($all_people,$group_members);
       render_alert_banner("Groups can't be empty, so the final member hasn't been removed.  You could try deleting the group","danger",15000);
-    }
-    else {
-      render_alert_banner("The group has been {$has_been}.");
+    } else {
+      if ( 0 < (count($members_to_add) + count($members_to_del) ))
+      {
+        render_alert_banner("The group has been {$has_been}.");
+      }
     }
 
   }
@@ -248,12 +313,10 @@ ldap_close($ldap_connection);
 
  }
 
-
- function update_form_with_users() {
+ function update_form_members() {
 
   var members_form = document.getElementById('group_members');
   var member_list_ul = document.getElementById('membership_list');
-
   var member_list = member_list_ul.getElementsByTagName("li");
 
   for (var i = 0; i < member_list.length; ++i) {
@@ -262,11 +325,20 @@ ldap_close($ldap_connection);
         hidden.name = 'membership[]';
         hidden.value = member_list[i]['textContent'];
         members_form.appendChild(hidden);
-
   }
+ }
 
+ function update_form_with_users() {
+
+  update_form_members()
+  var members_form = document.getElementById('group_members');
+
+  var action = document.createElement("input");
+        action.type = "hidden";
+        action.name = 'action_submit_users';
+        action.value = 'Save';
+        members_form.appendChild(action);
   members_form.submit();
-
  }
 
  $(function () {
@@ -438,28 +510,38 @@ if (count($attribute_map) > 0) { ?>
           <h3 class="panel-title pull-left" style="padding-top: 7.5px;">Group attributes</h3>
         </div>
         <div class="panel-body">
-          <div class="col-md-8">
+          <form class="form-horizontal" id="group_members" action="<?php print $CURRENT_PAGE; ?>" method="post">
+
             <?php
               $tabindex=1;
               foreach ($attribute_map as $attribute => $attr_r) {
                 $label = $attr_r['label'];
                 if (isset($$attribute)) { $these_values=$$attribute; } else { $these_values = array(); }
-                print "<div class='row'>";
                 $dl_identifider = ($full_dn != $create_group_message) ? $full_dn : "";
+
+                print "<div class='row'" . 'style="margin-bottom: 1em;"' . ">";
                 if (isset($attr_r['inputtype'])) { $inputtype = $attr_r['inputtype']; } else { $inputtype=""; }
+                if ($attribute == $LDAP['group_attribute']) { $label = "<strong>$label</strong><sup>&ast;</sup>"; }
                 render_attribute_fields($attribute,$label,$these_values,$dl_identifider,"",$inputtype,$tabindex);
                 print "</div>";
                 $tabindex++;
               }
             ?>
-            <div class="row">
-              <div class="col-md-4 col-md-offset-3">
-                <div class="form-group">
-                  <button id="submit_attributes" class="btn btn-info" <?php if (count($group_members)==0) print 'disabled'; ?> type="submit" tabindex="<?php print $tabindex; ?>" onclick="update_form_with_users()">Save</button>
-                </div>
-              </div>
+
+            <div><p align='center'><sup>&ast;</sup>The group identifier.  Changing this will change the full <strong>DN</strong>.</p></div>
+
+            <div class="form-group">
+              <p align="center">
+              <input id="submit_attributes" class="btn btn-info" 
+              <?php if (count($group_members)==0) print 'disabled'; ?> 
+              type="submit" tabindex="<?php print $tabindex; ?>" name="action_submit_attributes" value="Save attributes"
+              onclick="update_form_with_users()"
+              ></input>
+              </p>
             </div>
-          </div>
+
+            </form>
+
         </div>
       </div>
 <?php } ?>

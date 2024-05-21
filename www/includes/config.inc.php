@@ -87,6 +87,8 @@
  $LDAP['admins_group'] = getenv('LDAP_ADMINS_GROUP');
  $LDAP['group_ou'] = (getenv('LDAP_GROUP_OU') ? getenv('LDAP_GROUP_OU') : 'groups');
  $LDAP['user_ou'] = (getenv('LDAP_USER_OU') ? getenv('LDAP_USER_OU') : 'people');
+ $LDAP['new_group_ou'] = (getenv('LDAP_NEW_GROUP_OU') ? getenv('LDAP_NEW_GROUP_OU') : $LDAP['group_ou']);
+ $LDAP['new_user_ou'] = (getenv('LDAP_NEW_USER_OU') ? getenv('LDAP_NEW_USER_OU') : $LDAP['user_ou']);
  $LDAP['forced_rfc2307bis'] = ((strcasecmp(getenv('FORCE_RFC2307BIS'),'TRUE') == 0) ? TRUE : FALSE);
 
  if (getenv('LDAP_ACCOUNT_ADDITIONAL_OBJECTCLASSES')) { $account_additional_objectclasses = strtolower(getenv('LDAP_ACCOUNT_ADDITIONAL_OBJECTCLASSES')); }
@@ -103,6 +105,12 @@
 
  $LDAP['group_dn'] = "ou={$LDAP['group_ou']},{$LDAP['base_dn']}";
  $LDAP['user_dn'] = "ou={$LDAP['user_ou']},{$LDAP['base_dn']}";
+
+ $LDAP['new_group_dn'] = "ou={$LDAP['new_group_ou']},{$LDAP['base_dn']}";
+ $LDAP['new_user_dn'] = "ou={$LDAP['new_user_ou']},{$LDAP['base_dn']}";
+
+ $LDAP['group_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['group_dn']);
+ $LDAP['user_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['user_dn']);
 
  if (isset($account_additional_objectclasses) and $account_additional_objectclasses != "") {
    $LDAP['account_objectclasses'] = array_merge($LDAP['account_objectclasses'], explode(",", $account_additional_objectclasses));

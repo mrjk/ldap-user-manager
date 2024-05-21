@@ -28,9 +28,11 @@ if (isset($_POST['delete_group'])) {
 
 }
 
-$groups = ldap_get_group_list($ldap_connection);
-
+$groups_data = ldap_get_group_datalist($ldap_connection);
 ldap_close($ldap_connection);
+
+$groups = $groups_data["records"];
+$sub_groups = $groups_data["groups"];
 
 render_js_username_check();
 
@@ -58,10 +60,16 @@ render_js_username_check();
   </form>
  </div>
  <input class="form-control" id="search_input" type="text" placeholder="Search..">
+
+ <?php
+foreach ($sub_groups as $sub_group){
+?>
+
  <table class="table table-striped">
   <thead>
    <tr>
-     <th>Group name</th>
+     <th class="col-md-6"><?php print $sub_group; ?></th>
+     <th class="col-md-6"></th>
    </tr>
   </thead>
  <tbody id="grouplist">
@@ -75,13 +83,26 @@ render_js_username_check();
       });
     });
   </script>
+
 <?php
-foreach ($groups as $group){
- print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n </tr>\n";
-}
+  foreach ($groups as $record){
+    if ($sub_group == $record["group_name"] ){
+      $group = $record["name"] ;
+      $desc = $record["description"] ;
+      print " <tr>\n";
+      print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
+      print " <td>" . $desc . "</td>\n";
+      print " </tr>\n";
+    }
+  }
 ?>
   </tbody>
  </table>
+
+<?php
+}
+?>
+
 </div>
 <?php
 
