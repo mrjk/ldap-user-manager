@@ -107,9 +107,9 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
 
 #### LDAP settings
 
-* `LDAP_USER_OU` (default: *people*):  The name of the OU used to store user accounts (without the base DN appended).
+* `LDAP_USER_OU` (default: *people*):  The name of the OU used to store user accounts (without the base DN appended). You can use a children instead, with the syntax: `people,ou=SUB_OU1,ou=SUB_OU2`. Warning: This will break setup or new user creation, unless the hierarchy already exists.
    
-* `LDAP_GROUP_OU` (default: *groups*):  The name of the OU used to store groups (without the base DN appended).
+* `LDAP_GROUP_OU` (default: *groups*):  The name of the OU used to store groups (without the base DN appended). You can use a children instead, with the syntax: `groups,ou=SUB_OU1,ou=SUB_OU2`. Warning: This will break setup or new group creation, unless the hierarchy already exists.
    
 * `LDAP_REQUIRE_STARTTLS` (default: *TRUE*):  If *TRUE* then a TLS connection is required for this interface to work.  If set to *FALSE* then the interface will work without STARTTLS, but a warning will be displayed on the page.
    
