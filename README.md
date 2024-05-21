@@ -107,9 +107,9 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
 
 #### LDAP settings
 
-* `LDAP_USER_OU` (default: *people*):  The name of the OU used to store user accounts (without the base DN appended).
+* `LDAP_USER_OU` (default: *people*):  The name of the OU used to store user accounts (without the base DN appended). You can use a children instead, with the syntax: `people,ou=SUB_OU1,ou=SUB_OU2`. Warning: This will break setup or new user creation, unless the hierarchy already exists.
    
-* `LDAP_GROUP_OU` (default: *groups*):  The name of the OU used to store groups (without the base DN appended).
+* `LDAP_GROUP_OU` (default: *groups*):  The name of the OU used to store groups (without the base DN appended). You can use a children instead, with the syntax: `groups,ou=SUB_OU1,ou=SUB_OU2`. Warning: This will break setup or new group creation, unless the hierarchy already exists.
    
 * `LDAP_REQUIRE_STARTTLS` (default: *TRUE*):  If *TRUE* then a TLS connection is required for this interface to work.  If set to *FALSE* then the interface will work without STARTTLS, but a warning will be displayed on the page.
    
@@ -152,7 +152,7 @@ These settings should only be changed if you're trying to make the user manager 
    
 * `USERNAME_FORMAT` (default: *{first_name}-{last_name}*):  The template used to dynamically generate the usernames stored in the `uid` attribute.  See [Username format](#username-format).
    
-* `USERNAME_REGEX` (default: *^[a-z][a-zA-Z0-9\._-]{3,32}$*): The regular expression used to ensure account names and group names are safe to use on servers.  See [Username format](#username-format).
+* `USERNAME_REGEX` (default: *[a-z][a-zA-Z0-9\._-]{3,32}*): The regular expression used to ensure account names and group names are safe to use on servers. The regex is automatically anchored with `^$`. See [Username format](#username-format).
    
 * `PASSWORD_HASH` (no default):  Select which hashing method which will be used to store passwords in LDAP.  Options are (in order of precedence) `SHA512CRYPT`, `SHA256CRYPT`, `MD5CRYPT`, `SSHA`, `SHA`, `SMD5`, `MD5`, `ARGON2`, `CRYPT` & `CLEAR`.  If your chosen method isn't available on your system then the strongest available method will be automatically selected - `SSHA` is the strongest method guaranteed to be available. (Note that for `ARGON2` to work your LDAP server will need to have the ARGON2 module enabled. If you don't the passwords will be saved but the user won't be able to authenticate.) Cleartext passwords should NEVER be used in any situation outside of a test.
    

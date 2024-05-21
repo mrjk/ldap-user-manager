@@ -455,10 +455,10 @@ function generate_username($fn,$ln) {
   global $USERNAME_FORMAT;
 
   $username = $USERNAME_FORMAT;
-  $username = str_replace('{first_name}',strtolower($fn), $username);
-  $username = str_replace('{first_name_initial}',strtolower($fn[0]), $username);
-  $username = str_replace('{last_name}',strtolower($ln), $username);
-  $username = str_replace('{last_name_initial}',strtolower($ln[0]), $username);
+  $username = @str_replace('{first_name}',strtolower($fn), $username);
+  $username = @str_replace('{first_name_initial}',strtolower($fn[0]), $username);
+  $username = @str_replace('{last_name}',strtolower($ln), $username);
+  $username = @str_replace('{last_name_initial}',strtolower($ln[0]), $username);
 
   return $username;
 
