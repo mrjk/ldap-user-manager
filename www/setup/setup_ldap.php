@@ -16,6 +16,40 @@ $ldap_connection = open_ldap_connection();
 $no_errors = TRUE;
 $show_create_admin_button = FALSE;
 
+# Recursive helper
+function loop_over_children($dn) {
+
+  $parts = array_reverse(explode(",", $dn));
+  $ret = array();
+  $current = array();
+  foreach ($parts as $part) {
+    error_log("SETOUUUUTTTPPP  " . $part , 0);
+    array_push($current, $part);
+    array_push($ret, implode(",", array_reverse($current)));
+  }
+  return $ret;
+}
+
+function build_tree($ldap_connection, $part) {
+  global $li_warn, $li_fail, $li_good;
+
+  if (substr( $part, 0, 3 ) === "ou="){
+    $ou_add = @ ldap_add($ldap_connection, $part, array( 'objectClass' => 'organizationalUnit', 'ou' => $part ));
+    if ($ou_add == TRUE) {
+      print "$li_good Created OU <strong>{$part}</strong></li>\n";
+    }
+    else {
+      $error = ldap_error($ldap_connection);
+      print "$li_fail Couldn't create {$part}: <pre>$error</pre></li>\n";
+      $no_errors = FALSE;
+    }
+  } elseif (substr( $part, 0, 3 ) === "dc="){
+    ;
+  } else {
+    print "$li_warn Ignore part: " . $part . "  " . "</li>\n";
+  }
+ }
+
 # Set up missing stuff
 
 if (isset($_POST['fix_problems'])) {
@@ -35,27 +69,15 @@ if (isset($_POST['fix_problems'])) {
 <?php
 
  if (isset($_POST['setup_group_ou'])) {
-  $ou_add = @ ldap_add($ldap_connection, $LDAP['group_dn'], array( 'objectClass' => 'organizationalUnit', 'ou' => $LDAP['group_ou'] ));
-  if ($ou_add == TRUE) {
-   print "$li_good Created OU <strong>{$LDAP['group_dn']}</strong></li>\n";
-  }
-  else {
-   $error = ldap_error($ldap_connection);
-   print "$li_fail Couldn't create {$LDAP['group_dn']}: <pre>$error</pre></li>\n";
-   $no_errors = FALSE;
+  foreach (loop_over_children($LDAP['group_dn']) as $part) {
+    build_tree($ldap_connection, $part);
   }
  }
 
 
  if (isset($_POST['setup_user_ou'])) {
-  $ou_add = @ ldap_add($ldap_connection, $LDAP['user_dn'], array( 'objectClass' => 'organizationalUnit', 'ou' => $LDAP['user_ou'] ));
-  if ($ou_add == TRUE) {
-   print "$li_good Created OU <strong>{$LDAP['user_dn']}</strong></li>\n";
-  }
-  else {
-   $error = ldap_error($ldap_connection);
-   print "$li_fail Couldn't create {$LDAP['user_dn']}: <pre>$error</pre></li>\n";
-   $no_errors = FALSE;
+  foreach (loop_over_children($LDAP['user_dn']) as $part) {
+    build_tree($ldap_connection, $part);
   }
  }
 

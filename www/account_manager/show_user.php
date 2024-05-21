@@ -157,15 +157,18 @@ if ($ldap_search) {
     $account_attribute = $LDAP['account_attribute'];
     $new_account_identifier = $to_update[$account_attribute][0];
     $new_rdn = "{$account_attribute}={$new_account_identifier}";
-    $renamed_entry = ldap_rename($ldap_connection, $dn, $new_rdn, $LDAP['user_dn'], true);
+
+    $parent_dn = get_parent_dn($dn); // was $LDAP['user_dn']
+    $renamed_entry = ldap_rename($ldap_connection, $dn, $new_rdn, $parent_dn, true);
     if ($renamed_entry) {
-      $dn = "{$new_rdn},{$LDAP['user_dn']}";
+      $dn = "{$new_rdn},{$parent_dn}"; // was $LDAP['user_dn']
       $account_identifier = $new_account_identifier;
     }
     else {
       ldap_get_option($ldap_connection, LDAP_OPT_DIAGNOSTIC_MESSAGE, $detailed_err);
       error_log("$log_prefix Failed to rename the DN for {$account_identifier}: " . ldap_error($ldap_connection) . " -- " . $detailed_err,0);
     }
+
   }
 
   $existing_objectclasses = $user[0]['objectclass'];

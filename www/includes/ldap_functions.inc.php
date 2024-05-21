@@ -186,6 +186,38 @@ function generate_salt($length) {
 
 }
 
+##################################
+
+function loop_over_children($dn) {
+
+  $parts = array_reverse(explode(",", $dn));
+  $ret = array();
+  $current = array();
+  foreach ($parts as $part) {
+    // error_log("SETOUUUUTTTPPP  " . $part , 0);
+    array_push($current, $part);
+    // array_push($ret, implode(",", array_reverse($current)));
+  }
+  return $current;
+}
+
+function get_subgroup_name($dn) {
+
+  $ret = array();
+  foreach (loop_over_children($dn) as $part) {
+    if (substr( $part, 0, 3 ) === "ou="){
+      $grp_name = explode("=", $part, 2 )[1];
+      array_push($ret, $grp_name);
+      // array_push($ret, $part);
+    }
+  }
+  $ret = implode("/", $ret);
+  return $ret;
+}
+
+function get_parent_dn($dn){
+  return preg_replace('/^([^,]+,?)(.*)$/', '$2', $dn);
+}
 
 ##################################
 
@@ -307,39 +339,80 @@ function ldap_hashed_password($password) {
 
 function ldap_get_user_list($ldap_connection,$start=0,$entries=NULL,$sort="asc",$sort_key=NULL,$filters=NULL,$fields=NULL) {
 
- global $log_prefix, $LDAP, $LDAP_DEBUG;
+  global $log_prefix, $LDAP, $LDAP_DEBUG;
+ 
+  if (!isset($fields)) { $fields = array_unique( array("{$LDAP['account_attribute']}", "givenname", "sn", "mail")); }
+ 
+  if (!isset($sort_key)) { $sort_key = $LDAP['account_attribute']; }
 
- if (!isset($fields)) { $fields = array_unique( array("{$LDAP['account_attribute']}", "givenname", "sn", "mail")); }
-
- if (!isset($sort_key)) { $sort_key = $LDAP['account_attribute']; }
-
- $this_filter = "(&({$LDAP['account_attribute']}=*)$filters)";
-
- $ldap_search = @ ldap_search($ldap_connection, "{$LDAP['user_dn']}", $this_filter, $fields);
- $result = @ ldap_get_entries($ldap_connection, $ldap_search);
- if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix LDAP returned {$result['count']} users for {$LDAP['user_dn']} when using this filter: $this_filter",0); }
-
- $records = array();
- foreach ($result as $record) {
-
-  if (isset($record[$sort_key][0])) {
-
-   $add_these = array();
-   foreach($fields as $this_attr) {
-    if ($this_attr !== $sort_key and isset($record[$this_attr])) { $add_these[$this_attr] = $record[$this_attr][0]; }
+  $this_filter = "(&({$LDAP['account_attribute']}=*)$filters)";
+  $ldap_search = @ ldap_search($ldap_connection, "{$LDAP['user_dn']}", $this_filter, $fields);
+  $result = @ ldap_get_entries($ldap_connection, $ldap_search);
+  if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix LDAP returned {$result['count']} users for {$LDAP['user_dn']} when using this filter: $this_filter",0); }
+  $records = array();
+  foreach ($result as $record) {
+ 
+   if (isset($record[$sort_key][0])) {
+ 
+    $add_these = array();
+    foreach($fields as $this_attr) {
+     if ($this_attr !== $sort_key and isset($record[$this_attr])) { $add_these[$this_attr] = $record[$this_attr][0]; }
+    }
+ 
+    $records[$record[$sort_key][0]] = $add_these;
+ 
    }
-
-   $records[$record[$sort_key][0]] = $add_these;
-
   }
+  if ($sort == "asc") { ksort($records); } else { krsort($records); }
+ 
+  return(array_slice($records,$start,$entries));
  }
 
- if ($sort == "asc") { ksort($records); } else { krsort($records); }
 
- return(array_slice($records,$start,$entries));
+##################################
 
 
-}
+ function ldap_get_user_datalist($ldap_connection,$start=0,$entries=NULL,$sort="asc",$sort_key=NULL,$filters=NULL,$fields=NULL) {
+
+  global $log_prefix, $LDAP, $LDAP_DEBUG;
+ 
+  if (!isset($fields)) { $fields = array_unique( array("{$LDAP['account_attribute']}", "givenname", "sn", "mail", "uid")); }
+  if (!isset($sort_key)) { $sort_key = $LDAP['account_attribute']; }
+ 
+  $this_filter = "(&({$LDAP['account_attribute']}=*)$filters)";
+ 
+  $ldap_search = @ ldap_search($ldap_connection, "{$LDAP['user_dn']}", $this_filter, $fields);
+  $result = @ ldap_get_entries($ldap_connection, $ldap_search);
+  if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix LDAP returned {$result['count']} users for {$LDAP['user_dn']} when using this filter: $this_filter",0); }
+ 
+  $records = array();
+  $sub_groups = array();
+  foreach ($result as $record) {
+ 
+   if (isset($record[$sort_key][0])) {
+ 
+    $add_these = array();
+    foreach($fields as $this_attr) {
+     if ($this_attr !== $sort_key and isset($record[$this_attr])) {
+      $add_these[$this_attr] = $record[$this_attr][0]; 
+    }
+    }
+
+    $dn = $record['dn'];
+    $sub_group = get_subgroup_name($dn) ;
+    array_push($sub_groups, $sub_group);
+    $add_these["group_name"] = $sub_group;
+    $add_these["dn"] = $dn;
+    $add_these["uid"] = $record['uid'][0];
+
+    $records[$record[$sort_key][0]] = $add_these; 
+   }
+  }
+
+  $sub_groups = array_unique($sub_groups);
+  return array("groups" => $sub_groups, "records" => $records);
+ }
+
 
 ##################################
 
@@ -439,6 +512,42 @@ function ldap_get_group_list($ldap_connection,$start=0,$entries=NULL,$sort="asc"
 
 
 }
+
+
+
+function ldap_get_group_datalist($ldap_connection,$start=0,$entries=NULL,$sort="asc",$filters=NULL) {
+  global $log_prefix, $LDAP, $LDAP_DEBUG;
+ 
+  $this_filter = "(&(objectclass=*)$filters)";
+  $ldap_search = @ ldap_search($ldap_connection, "{$LDAP['group_dn']}", $this_filter);
+ 
+  $result = @ ldap_get_entries($ldap_connection, $ldap_search);
+  if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix LDAP returned {$result['count']} groups for {$LDAP['group_dn']} when using this filter: $this_filter",0); }
+ 
+  $sub_groups = array();
+  $records = array();
+  foreach ($result as $record) {
+
+   if (isset($record[$LDAP['group_attribute']][0])) {
+    $name = $record[$LDAP['group_attribute']][0];
+    $dn = $record['dn'];
+    $desc = @$record['description'][0];
+
+    $sub_group = get_subgroup_name($dn) ;
+    array_push($sub_groups, $sub_group);
+
+    array_push($records, array(
+      "name" => $name,
+      "dn" => $dn,
+      "group_name" => $sub_group,
+      "description" => $desc,
+    ));
+   }
+  }
+
+  $sub_groups = array_unique($sub_groups);
+  return array("groups" => $sub_groups, "records" => $records);
+ }
 
 
 ##################################
@@ -556,9 +665,14 @@ function ldap_group_dn($ldap_connection,$group) {
    $result = @ ldap_get_entries($ldap_connection, $ldap_search);
    if ($result["count"] == 1) {
    $group=$result[0]['dn'];
-   }
-   else {
-    error_log("$log_prefix Couldn't find the DN for user $group");
+   } elseif ($result["count"] > 1) {
+    error_log("$log_prefix Found duplicate groups with same '{$LDAP['group_attribute']}' for group $group");
+    $group=$result[$result["count"] - 1]['dn'];
+
+    // TOFIX: Let's be smooth first ...
+    // return FALSE;
+   } else {
+    error_log("$log_prefix Couldn't find the DN for group $group");
     return FALSE;
    }
   }
@@ -668,7 +782,7 @@ function ldap_new_group($ldap_connection,$group_name,$initial_member="",$extra_a
        $update_gid_store=TRUE;
      }
 
-     $group_dn="cn=$new_group,{$LDAP['group_dn']}";
+     $group_dn="cn=$new_group,{$LDAP['new_group_dn']}";
 
      $add_group = @ ldap_add($ldap_connection, $group_dn, $new_group_array);
 
@@ -924,7 +1038,7 @@ function ldap_new_account($ldap_connection,$account_r) {
      if (empty($account_attributes['homedirectory'])) { $account_attributes['homedirectory'] = "/home/" . $account_r['uid'][0]; }
 
      $add_account = @ ldap_add($ldap_connection,
-                               "{$LDAP['account_attribute']}=$account_identifier,{$LDAP['user_dn']}",
+                               "{$LDAP['account_attribute']}=$account_identifier,{$LDAP['new_user_dn']}",
                                $account_attributes
                               );
 

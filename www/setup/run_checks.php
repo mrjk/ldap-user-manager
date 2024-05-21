@@ -98,11 +98,16 @@ else {
        <ul class="list-group">
 <?php
 
-$group_filter = "(&(objectclass=organizationalUnit)(ou={$LDAP['group_ou']}))";
-$ldap_group_search = ldap_search($ldap_connection, "{$LDAP['base_dn']}", $group_filter);
-$group_result = ldap_get_entries($ldap_connection, $ldap_group_search);
+$group_filter = "(&(objectclass=organizationalUnit)({$LDAP['group_cn']}))";
+$searchFailed = false;
+try {
+       @$ldap_group_search = ldap_search($ldap_connection, "{$LDAP['group_dn']}", $group_filter);
+       $group_result = ldap_get_entries($ldap_connection, $ldap_group_search);
+} catch (TypeError $e) {
+       $searchFailed = true;
+}
 
-if ($group_result['count'] != 1) {
+if ($searchFailed || $group_result['count'] != 1) {
 
  print "$li_fail The group OU (<strong>{$LDAP['group_dn']}</strong>) doesn't exist. ";
  print "<a href='#' data-toggle='popover' title='{$LDAP['group_dn']}' data-content='";
@@ -117,11 +122,17 @@ else {
  print "$li_good The group OU (<strong>{$LDAP['group_dn']}</strong>) is present.</li>";
 }
 
-$user_filter  = "(&(objectclass=organizationalUnit)(ou={$LDAP['user_ou']}))";
-$ldap_user_search = ldap_search($ldap_connection, "{$LDAP['base_dn']}", $user_filter);
-$user_result = ldap_get_entries($ldap_connection, $ldap_user_search);
 
-if ($user_result['count'] != 1) {
+$user_filter  = "(&(objectclass=organizationalUnit)({$LDAP['user_cn']}))";
+$searchFailed = false;
+try {
+       @$ldap_user_search = ldap_search($ldap_connection, "{$LDAP['user_dn']}", $user_filter);
+       $user_result = ldap_get_entries($ldap_connection, $ldap_user_search);
+} catch (TypeError $e) {
+       $searchFailed = true;
+}
+
+if ($searchFailed || $user_result['count'] != 1) {
 
  print "$li_fail The user OU (<strong>{$LDAP['user_dn']}</strong>) doesn't exist. ";
  print "<a href='#' data-toggle='popover' title='{$LDAP['user_dn']}' data-content='";
@@ -225,7 +236,11 @@ if ($adminsgroup_result['count'] != 1) {
 else {
  print "$li_good The LDAP account administrators group (<strong>{$LDAP['admins_group']}</strong>) is present.</li>";
 
- $admins = ldap_get_group_members($ldap_connection,$LDAP['admins_group']);
+ try {
+       $admins = ldap_get_group_members($ldap_connection,$LDAP['admins_group']);
+ } catch (TypeError) {
+       $admins = array();
+ }
 
  if (count($admins) < 1) {
   print "$li_fail The LDAP administration group is empty. You can add an admin account in the next section.</li>";
