@@ -8,13 +8,31 @@ It's designed to work with OpenLDAP and to be run as a container.  It complement
 ## Features
 
  * Setup wizard: this will create the necessary structure to allow you to add users and groups and will set up an initial admin user that can log into the user manager.
+ * Organization management: create, edit, and delete organizations (companies, universities, etc.) in your LDAP directory.
+ * Role-based access control: assign users as administrators, maintainers, or organization managers, each with appropriate permissions.
  * Group creation and management.
  * User account creation and management.
  * Optionally send an email to the user with their new or updated account credentials.
  * Secure password auto-generator: click the button to generate a secure password.
  * Password strength indicator.
+ * Self-service account management: users can edit their own details, change passwords/passcodes, or delete their account.
+ * Credential reset: authorized roles can reset passwords and passcodes for users.
+ * Passcode support: optional passcode attribute for user accounts, with UI and backend support.
  * Self-service password change: non-admin users can log in to change their password.
  * An optional form for people to request accounts (request emails are sent to an administrator).
+
+***
+
+## Role-based Access Control
+
+LDAP User Manager supports multiple user roles for scalable, secure delegation:
+
+- **Administrators**: Full access to all organizations, users, and settings.
+- **Maintainers**: Can manage all organizations and users, but with limited access to global settings.
+- **Organization Managers**: Can manage users and groups within their assigned organization(s).
+- **Regular Users**: Can view and edit their own account, change their password/passcode, or delete their account.
+
+Role assignment is managed via LDAP group membership and/or a dedicated role attribute. Access control is enforced throughout the UI and backend.
 
 ***
 
@@ -82,7 +100,7 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
    
 * `LDAP_ADMIN_BIND_PWD`: The password for `LDAP_ADMIN_BIND_DN`
    
-* `LDAP_ADMINS_GROUP`: The name of the group used to define accounts that can use this tool to manage LDAP accounts.  e.g. `admins`
+* `LDAP_ADMINS_GROUP`: The name of the group used to define accounts that can use this tool to manage LDAP accounts.  e.g. `admins` (supported for backward compatibility)
 
 ### Optional:
 
@@ -116,6 +134,16 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
 * `LDAP_IGNORE_CERT_ERRORS` (default: *FALSE*): If *TRUE* then problems with the certificate presented by the LDAP server will be ignored (for example FQDN mismatches).  Use this if your LDAP server is using a self-signed certificate and you don't have a CA certificate for it or you're connecting to a pool of different servers via round-robin DNS.
    
 * `LDAP_TLS_CACERT` (no default): If you need to use a specific CA certificate for TLS connections to the LDAP server (when `LDAP_REQUIRE_STARTTLS` is set) then assign the contents of the CA certificate to this variable.  e.g. `-e LDAP_TLS_CACERT="$(</path/to/ca.crt)"` (ensure you're using quotes or you'll get an "invalid reference format: repository name must be lowercase" error).  Alternatively you can bind-mount a certificate into the container and use `LDAP_TLS_CACERT_FILE` to specify the path to the file.
+
+#### Organization and Role Management
+
+These settings control how organizations, roles, and passcode support are managed in your LDAP directory.
+
+* `LDAP_ORG_OU` (default: *organizations*): The name of the OU used to store organization entries (without the base DN appended).
+* `LDAP_ORG_ATTRIBUTE` (default: *o*): The attribute used as the organization identifier.
+* `LDAP_ROLE_ATTRIBUTE` (default: *role*): The LDAP attribute used to store user roles (e.g., admin, maintainer, org_manager, user).
+* `LDAP_PASSCODE_ATTRIBUTE` (default: *passcode*): The LDAP attribute used to store user passcodes (if enabled).
+* `ENABLE_PASSCODE` (default: *FALSE*): Set to TRUE to enable passcode support for user accounts. Passcodes can be set/reset by authorized roles and self-serviced by users.
 
 #### Advanced LDAP settings
 
