@@ -32,7 +32,7 @@ if($_POST) {
   }
 
   if (! isset($_POST['lastname']) or $_POST['lastname'] == "") {
-    array_push($error_messages, "You didn't enter your first name.");
+    array_push($error_messages, "You didn't enter your last name.");
   }
   else {
     $lastname=filter_var($_POST['lastname'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);

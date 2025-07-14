@@ -84,9 +84,11 @@
 
  # Various advanced LDAP settings
 
- $LDAP['admins_group'] = getenv('LDAP_ADMINS_GROUP');
+ $LDAP['admins_group'] = getenv('LDAP_ADMINS_GROUP') ?: null;
+ $LDAP['maintainers_group'] = getenv('LDAP_MAINTAINERS_GROUP') ?: null;
  $LDAP['group_ou'] = (getenv('LDAP_GROUP_OU') ? getenv('LDAP_GROUP_OU') : 'groups');
  $LDAP['user_ou'] = (getenv('LDAP_USER_OU') ? getenv('LDAP_USER_OU') : 'people');
+ $LDAP['org_ou'] = (getenv('LDAP_ORG_OU') ? getenv('LDAP_ORG_OU') : 'organizations');
  $LDAP['forced_rfc2307bis'] = ((strcasecmp(getenv('FORCE_RFC2307BIS'),'TRUE') == 0) ? TRUE : FALSE);
 
  if (getenv('LDAP_ACCOUNT_ADDITIONAL_OBJECTCLASSES')) { $account_additional_objectclasses = strtolower(getenv('LDAP_ACCOUNT_ADDITIONAL_OBJECTCLASSES')); }
@@ -101,6 +103,7 @@
    if (strtoupper(getenv('LDAP_GROUP_MEMBERSHIP_USES_UID')) == 'FALSE' )  { $LDAP['group_membership_uses_uid']  = FALSE; }
  }
 
+ $LDAP['org_dn'] = "ou={$LDAP['org_ou']},{$LDAP['base_dn']}";
  $LDAP['group_dn'] = "ou={$LDAP['group_ou']},{$LDAP['base_dn']}";
  $LDAP['user_dn'] = "ou={$LDAP['user_ou']},{$LDAP['base_dn']}";
 
@@ -158,6 +161,8 @@
 
  $ACCOUNT_REQUESTS_EMAIL = (getenv('ACCOUNT_REQUESTS_EMAIL') ? getenv('ACCOUNT_REQUESTS_EMAIL') : $EMAIL['from_address']);
 
+ # PHPMailer path configuration
+$PHPMailer_PATH = (getenv('PHPMailer_PATH') ? getenv('PHPMailer_PATH') : '/opt/PHPMailer/src');
 
  # Debugging
 

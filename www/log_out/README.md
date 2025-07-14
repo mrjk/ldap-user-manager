@@ -1,0 +1,1 @@
+This directory contains the log_out module for LDAP User Manager. 

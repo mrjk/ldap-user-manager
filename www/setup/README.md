@@ -1,0 +1,1 @@
+This directory contains the setup module for LDAP User Manager. 

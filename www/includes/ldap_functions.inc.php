@@ -196,8 +196,8 @@ function ldap_hashed_password($password) {
  $check_algos = array (
                        "SHA512CRYPT" => "CRYPT_SHA512",
                        "SHA256CRYPT" => "CRYPT_SHA256",
-#                       "BLOWFISH"    => "CRYPT_BLOWFISH",
-#                       "EXT_DES"     => "CRYPT_EXT_DES",
+                       # "BLOWFISH"    => "CRYPT_BLOWFISH",
+                       # "EXT_DES"     => "CRYPT_EXT_DES",
                        "MD5CRYPT"    => "CRYPT_MD5"
                       );
 
@@ -247,14 +247,14 @@ function ldap_hashed_password($password) {
     $hashed_pwd = '{CRYPT}' . crypt($password, '$5$' . generate_salt(8));
     break;
 
-# Blowfish & EXT_DES didn't work
-#  case 'BLOWFISH':
-#    $hashed_pwd = '{CRYPT}' . crypt($password, '$2a$12$' . generate_salt(13));
-#    break;
+    # Blowfish & EXT_DES didn't work
+    #  case 'BLOWFISH':
+    #    $hashed_pwd = '{CRYPT}' . crypt($password, '$2a$12$' . generate_salt(13));
+    #    break;
 
-#  case 'EXT_DES':
-#    $hashed_pwd = '{CRYPT}' . crypt($password, '_' . generate_salt(8));
-#    break;
+    #  case 'EXT_DES':
+    #    $hashed_pwd = '{CRYPT}' . crypt($password, '_' . generate_salt(8));
+    #    break;
 
   case 'MD5CRYPT':
     $hashed_pwd = '{CRYPT}' . crypt($password, '$1$' . generate_salt(9));

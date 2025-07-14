@@ -1,8 +1,8 @@
 <?php
 
-require_once "/opt/PHPMailer/src/PHPMailer.php";
-require_once "/opt/PHPMailer/src/SMTP.php";
-require_once "/opt/PHPMailer/src/Exception.php";
+require_once "$PHPMailer_PATH/PHPMailer.php";
+require_once "$PHPMailer_PATH/SMTP.php";
+require_once "$PHPMailer_PATH/Exception.php";
 
 #Default email text
 

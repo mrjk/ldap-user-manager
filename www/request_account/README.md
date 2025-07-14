@@ -1,0 +1,1 @@
+This directory contains the request_account module for LDAP User Manager. 

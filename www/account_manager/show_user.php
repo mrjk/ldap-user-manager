@@ -5,7 +5,7 @@ set_include_path( ".:" . __DIR__ . "/../includes/");
 include_once "web_functions.inc.php";
 include_once "ldap_functions.inc.php";
 include_once "module_functions.inc.php";
-set_page_access("admin");
+set_page_access(["admin", "user"]); // Allow both admin and user roles
 
 render_header("$ORGANISATION_NAME account manager");
 render_submenu();
@@ -442,8 +442,8 @@ if ($ldap_search) {
   <div class="panel panel-default">
     <div class="panel-heading clearfix">
      <span class="panel-title pull-left"><h3><?php print $account_identifier; ?></h3></span>
-     <button class="btn btn-warning pull-right align-self-end" style="margin-top: auto;" onclick="show_delete_user_button();" <?php if ($account_identifier == $USER_ID) { print "disabled"; }?>>Delete account</button>
-     <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/index.php" method="post"><input type="hidden" name="delete_user" value="<?php print urlencode($account_identifier); ?>"><button class="btn btn-danger pull-right invisible" id="delete_user">Confirm deletion</button></form>
+     <button class="btn btn-warning pull-right align-self-end" style="margin-top: auto;" onclick="show_delete_user_button();" <?php /* Remove disabling for self-service */ ?>>Delete account</button>
+     <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/index.php" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');"><input type="hidden" name="delete_user" value="<?php print urlencode($account_identifier); ?>"><button class="btn btn-danger pull-right invisible" id="delete_user">Confirm deletion</button></form>
     </div>
     <ul class="list-group">
       <li class="list-group-item"><?php print $dn; ?></li>
@@ -597,9 +597,52 @@ if ($ldap_search) {
 	</div>
 </div>
 
+<div class="panel panel-default">
+ <div class="panel-heading text-center">Change your passcode</div>
+ <div class="panel-body text-center">
+  <form class="form-horizontal" action='' method='post'>
+   <input type='hidden' name='change_passcode'>
+   <div class="form-group">
+    <label for="new_passcode" class="col-sm-4 control-label">New Passcode</label>
+    <div class="col-sm-6">
+     <input type="text" class="form-control" id="new_passcode" name="new_passcode">
+    </div>
+   </div>
+   <div class="form-group">
+    <label for="confirm_passcode" class="col-sm-4 control-label">Confirm</label>
+    <div class="col-sm-6">
+     <input type="text" class="form-control" id="confirm_passcode" name="confirm_passcode">
+    </div>
+   </div>
+   <div class="form-group">
+    <button type="submit" class="btn btn-default">Change passcode</button>
+   </div>
+  </form>
+ </div>
+</div>
 
 <?php
 
+}
+
+// Handle self-service passcode change
+if (isset($_POST['change_passcode'])) {
+    $new_passcode = $_POST['new_passcode'];
+    $confirm_passcode = $_POST['confirm_passcode'];
+    if ($new_passcode === '' || $confirm_passcode === '') {
+        render_alert_banner("Please fill in both passcode fields.", "warning");
+    } elseif ($new_passcode !== $confirm_passcode) {
+        render_alert_banner("The passcodes didn't match.", "warning");
+    } else {
+        $ldap_connection = open_ldap_connection();
+        $entry = ['loginPasscode' => password_hash($new_passcode, PASSWORD_DEFAULT)];
+        $result = @ldap_modify($ldap_connection, $dn, $entry);
+        if ($result) {
+            render_alert_banner("Your passcode has been updated.", "success");
+        } else {
+            render_alert_banner("There was a problem updating your passcode. Check the logs for more information.", "danger", 15000);
+        }
+    }
 }
 
 render_footer();

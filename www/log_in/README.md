@@ -1,0 +1,1 @@
+This directory contains the log_in module for LDAP User Manager. 

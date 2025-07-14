@@ -19,11 +19,25 @@ if (isset($_GET['logged_out'])) {
 }
 
 
-if (isset($_POST["user_id"]) and isset($_POST["password"])) {
+if (isset($_POST["user_id"]) and (isset($_POST["password"]) || isset($_POST["passcode"]))) {
 
  $ldap_connection = open_ldap_connection();
  $account_id = ldap_auth_username($ldap_connection,$_POST["user_id"],$_POST["password"]);
  $is_admin = ldap_is_group_member($ldap_connection,$LDAP['admins_group'],$account_id);
+
+ // If password failed, try passcode
+ if ($account_id == FALSE && isset($_POST["passcode"]) && $_POST["passcode"] !== "") {
+   // Search for user DN
+   $user_search = ldap_search($ldap_connection, $LDAP['user_dn'], "({$LDAP['account_attribute']}=" . ldap_escape($_POST["user_id"], "", LDAP_ESCAPE_FILTER) . ")", ["dn", "loginPasscode"]);
+   $user_entries = ldap_get_entries($ldap_connection, $user_search);
+   if ($user_entries["count"] > 0 && isset($user_entries[0]["loginpasscode"][0])) {
+     $stored_hash = $user_entries[0]["loginpasscode"][0];
+     if (password_verify($_POST["passcode"], $stored_hash)) {
+       $account_id = $_POST["user_id"];
+       // Optionally, set $is_admin = false; (passcode logins are not admin)
+     }
+   }
+ }
 
  ldap_close($ldap_connection);
 
@@ -41,7 +55,6 @@ if (isset($_POST["user_id"]) and isset($_POST["password"])) {
  else {
   header("Location: //{$_SERVER['HTTP_HOST']}{$THIS_MODULE_PATH}/index.php?invalid\n\n");
  }
-
 }
 else {
 
@@ -87,6 +100,13 @@ else {
      <label for="password" class="col-sm-4 control-label">Password</label>
      <div class="col-sm-6">
       <input type="password" class="form-control" id="confirm" name="password">
+     </div>
+    </div>
+
+    <div class="form-group">
+     <label for="passcode" class="col-sm-4 control-label">Passcode (optional)</label>
+     <div class="col-sm-6">
+      <input type="text" class="form-control" id="passcode" name="passcode">
      </div>
     </div>
 

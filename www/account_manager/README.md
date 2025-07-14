@@ -1,0 +1,1 @@
+This directory contains the account_manager module for LDAP User Manager. 

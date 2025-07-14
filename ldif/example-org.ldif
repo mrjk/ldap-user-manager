@@ -1,0 +1,30 @@
+# Example organization
+dn: o=OrgA,ou=organizations,dc=example,dc=com
+objectClass: organization
+objectClass: top
+o: OrgA
+postalAddress: 123 Main St$12345$City$Country
+telephoneNumber: +1 555 1234
+labeledURI: http://www.orga.com
+mail: info@orga.com
+
+# Users container
+dn: ou=users,o=OrgA,ou=organizations,dc=example,dc=com
+objectClass: organizationalUnit
+ou: users
+
+# Example user
+dn: uid=jane.doe,ou=users,o=OrgA,ou=organizations,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: top
+uid: jane.doe
+mail: jane.doe@orga.com
+cn: Jane Doe
+sn: Doe
+userPassword: {SSHA}dummyhash
+
+# Org Managers group
+dn: cn=orgManagers,o=OrgA,ou=organizations,dc=example,dc=com
+objectClass: groupOfNames
+cn: orgManagers
+member: uid=jane.doe,ou=users,o=OrgA,ou=organizations,dc=example,dc=com 

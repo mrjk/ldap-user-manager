@@ -36,6 +36,9 @@ $people = ldap_get_user_list($ldap_connection);
  <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
   <button type="button" class="btn btn-light"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></button>  &nbsp; <button id="add_group" class="btn btn-default" type="submit">New user</button>
  </form> 
+<?php if (currentUserIsGlobalAdmin() || currentUserIsMaintainer()): ?>
+<a href="organizations.php" class="btn btn-info mb-3">Manage Organizations</a>
+<?php endif; ?>
  <input class="form-control" id="search_input" type="text" placeholder="Search..">
  <table class="table table-striped">
   <thead>

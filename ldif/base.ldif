@@ -1,0 +1,26 @@
+dn: dc=example,dc=com
+objectClass: top
+objectClass: domain
+dc: example
+
+# Organizations container
+dn: ou=organizations,dc=example,dc=com
+objectClass: organizationalUnit
+ou: organizations
+
+# Roles container
+dn: ou=roles,dc=example,dc=com
+objectClass: organizationalUnit
+ou: roles
+
+# Administrators group
+dn: cn=administrators,ou=roles,dc=example,dc=com
+objectClass: groupOfNames
+cn: administrators
+member: cn=dummy,dc=example,dc=com
+
+# Maintainers group
+dn: cn=maintainers,ou=roles,dc=example,dc=com
+objectClass: groupOfNames
+cn: maintainers
+member: cn=dummy,dc=example,dc=com 
