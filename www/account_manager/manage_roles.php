@@ -20,6 +20,7 @@ function is_group_member($ldap_connection, $group, $uid) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validate_csrf_token();
     $uid = $_POST['uid'];
     $role = $_POST['role'];
     $action = $_POST['action'];
@@ -51,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>
                         <?php if (is_group_member($ldap_connection, $admins_group, $uid)): ?>
                             <form method="post" style="display:inline">
+                                <?= csrf_token_field() ?>
                                 <input type="hidden" name="uid" value="<?= htmlspecialchars($uid) ?>">
                                 <input type="hidden" name="role" value="admin">
                                 <input type="hidden" name="action" value="remove">
@@ -58,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </form>
                         <?php else: ?>
                             <form method="post" style="display:inline">
+                                <?= csrf_token_field() ?>
                                 <input type="hidden" name="uid" value="<?= htmlspecialchars($uid) ?>">
                                 <input type="hidden" name="role" value="admin">
                                 <input type="hidden" name="action" value="add">
@@ -68,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td>
                         <?php if (is_group_member($ldap_connection, $maintainers_group, $uid)): ?>
                             <form method="post" style="display:inline">
+                                <?= csrf_token_field() ?>
                                 <input type="hidden" name="uid" value="<?= htmlspecialchars($uid) ?>">
                                 <input type="hidden" name="role" value="maintainer">
                                 <input type="hidden" name="action" value="remove">
@@ -75,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </form>
                         <?php else: ?>
                             <form method="post" style="display:inline">
+                                <?= csrf_token_field() ?>
                                 <input type="hidden" name="uid" value="<?= htmlspecialchars($uid) ?>">
                                 <input type="hidden" name="role" value="maintainer">
                                 <input type="hidden" name="action" value="add">

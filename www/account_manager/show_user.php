@@ -40,18 +40,17 @@ else {
  $account_identifier = urldecode($account_identifier);
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validate_csrf_token();
+}
+
 $ldap_connection = open_ldap_connection();
 $ldap_search_query="({$LDAP['account_attribute']}=". ldap_escape($account_identifier, "", LDAP_ESCAPE_FILTER) . ")";
 $ldap_search = ldap_search( $ldap_connection, $LDAP['user_dn'], $ldap_search_query);
 
-
-#########################
-
 if ($ldap_search) {
-
  $user = ldap_get_entries($ldap_connection, $ldap_search);
-
- if ($user["count"] > 0) {
+ if ($user && isset($user["count"]) && $user["count"] > 0) {
 
   foreach ($attribute_map as $attribute => $attr_r) {
 
@@ -63,10 +62,31 @@ if ($ldap_search) {
     }
 
     if (isset($_FILES[$attribute]['size']) and $_FILES[$attribute]['size'] > 0) {
-
+      // File upload validation
+      global $FILE_UPLOAD_MAX_SIZE, $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+      $max_file_size = $FILE_UPLOAD_MAX_SIZE;
+      $allowed_mime_types = $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+      $file_size = $_FILES[$attribute]['size'];
+      $file_tmp = $_FILES[$attribute]['tmp_name'];
+      $file_error = $_FILES[$attribute]['error'];
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $mime_type = finfo_file($finfo, $file_tmp);
+      finfo_close($finfo);
+      if ($file_error !== UPLOAD_ERR_OK) {
+        render_alert_banner('File upload error for ' . htmlspecialchars($attribute) . '.', 'danger', 10000);
+        continue;
+      }
+      if ($file_size > $max_file_size) {
+        render_alert_banner('File for ' . htmlspecialchars($attribute) . ' is too large (max 2MB).', 'danger', 10000);
+        continue;
+      }
+      if (!in_array($mime_type, $allowed_mime_types)) {
+        render_alert_banner('Invalid file type for ' . htmlspecialchars($attribute) . '. Allowed: images, PDF, text.', 'danger', 10000);
+        continue;
+      }
       $this_attribute = array();
       $this_attribute['count'] = 1;
-      $this_attribute[0] = file_get_contents($_FILES[$attribute]['tmp_name']);
+      $this_attribute[0] = file_get_contents($file_tmp);
       $$attribute = $this_attribute;
       $to_update[$attribute] = $this_attribute;
       unset($to_update[$attribute]['count']);
@@ -114,6 +134,16 @@ if ($ldap_search) {
    render_footer();
    exit(0);
  }
+}
+else {
+  ?>
+  <div class="alert alert-danger">
+   <p class="text-center">There was a problem searching for this account.</p>
+  </div>
+  <?php
+  render_footer();
+  exit(0);
+}
 
  ### Update values
 
@@ -441,16 +471,16 @@ if ($ldap_search) {
 
   <div class="panel panel-default">
     <div class="panel-heading clearfix">
-     <span class="panel-title pull-left"><h3><?php print $account_identifier; ?></h3></span>
+     <span class="panel-title pull-left"><h3><?php print htmlspecialchars($account_identifier); ?></h3></span>
      <button class="btn btn-warning pull-right align-self-end" style="margin-top: auto;" onclick="show_delete_user_button();" <?php /* Remove disabling for self-service */ ?>>Delete account</button>
      <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/index.php" method="post" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');"><input type="hidden" name="delete_user" value="<?php print urlencode($account_identifier); ?>"><button class="btn btn-danger pull-right invisible" id="delete_user">Confirm deletion</button></form>
     </div>
     <ul class="list-group">
-      <li class="list-group-item"><?php print $dn; ?></li>
+      <li class="list-group-item"><?php print htmlspecialchars($dn); ?></li>
     </li>
     <div class="panel-body">
      <form class="form-horizontal" action="" enctype="multipart/form-data" method="post">
-
+      <?= csrf_token_field() ?>
       <input type="hidden" name="update_account">
       <input type="hidden" id="pass_score" value="0" name="pass_score">
       <input type="hidden" name="account_identifier" value="<?php print $account_identifier; ?>">
@@ -542,10 +572,10 @@ if ($ldap_search) {
             <?php
             foreach ($member_of as $group) {
               if ($group == $LDAP["admins_group"] and $USER_ID == $account_identifier) {
-                print "<div class='list-group-item' style='opacity: 0.5; pointer-events:none;'>{$group}</div>\n";
+                print "<div class='list-group-item' style='opacity: 0.5; pointer-events:none;'>" . htmlspecialchars($group) . "</div>\n";
               }
               else {
-                print "<li class='list-group-item'>$group</li>\n";
+                print "<li class='list-group-item'>" . htmlspecialchars($group) . "</li>\n";
               }
             }
             ?>
@@ -586,7 +616,7 @@ if ($ldap_search) {
            <ul class="list-group">
             <?php
              foreach ($not_member_of as $group) {
-               print "<li class='list-group-item'>$group</li>\n";
+               print "<li class='list-group-item'>" . htmlspecialchars($group) . "</li>\n";
              }
             ?>
            </ul>

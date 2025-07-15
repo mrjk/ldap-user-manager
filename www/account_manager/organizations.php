@@ -13,6 +13,7 @@ if (!(currentUserIsGlobalAdmin() || currentUserIsMaintainer())) {
 }
 
 render_header('Organization Management');
+render_submenu();
 
 // Message handling
 $message = '';
@@ -20,6 +21,9 @@ $message_type = '';
 
 // List organizations (for duplicate check and display)
 $orgs = listOrganizations();
+if (!is_array($orgs)) {
+    $orgs = [];
+}
 $orgNames = array_map(function($org) { return strtolower($org['o'][0] ?? ''); }, $orgs);
 
 // Helper: count users in an organization
@@ -37,6 +41,7 @@ function countUsersInOrg($orgName) {
 
 // Handle form submission for creating a new organization
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_org'])) {
+    validate_csrf_token();
     $orgName = trim($_POST['o']);
     $city = trim($_POST['l']);
     $postalCode = trim($_POST['postalCode']);
@@ -96,6 +101,7 @@ if (isset($_GET['delete'])) {
 
 // Handle edit (update organization)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_org'])) {
+    validate_csrf_token();
     $orgName = trim($_POST['edit_o']);
     $city = trim($_POST['edit_l']);
     $postalCode = trim($_POST['edit_postalCode']);
@@ -186,6 +192,7 @@ if (isset($_GET['edit'])) {
 
     <h3>Create New Organization</h3>
     <form method="post" id="create_org_form" onsubmit="return validateOrgForm();">
+        <?= csrf_token_field() ?>
         <div class="form-group">
             <label for="o">Name</label>
             <input type="text" class="form-control" name="o" id="o" required>
@@ -225,6 +232,7 @@ if (isset($_GET['edit'])) {
       <div class="modal-dialog">
         <div class="modal-content">
           <form method="post">
+            <?= csrf_token_field() ?>
             <div class="modal-header">
               <h5 class="modal-title">Edit Organization: <?= htmlspecialchars($editOrg['o'][0]) ?></h5>
               <a href="organizations.php" class="close">&times;</a>

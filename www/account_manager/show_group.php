@@ -87,14 +87,34 @@ foreach ($attribute_map as $attribute => $attr_r) {
   }
 
   if (isset($_FILES[$attribute]['size']) and $_FILES[$attribute]['size'] > 0) {
-
+    // File upload validation
+    global $FILE_UPLOAD_MAX_SIZE, $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+    $max_file_size = $FILE_UPLOAD_MAX_SIZE;
+    $allowed_mime_types = $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+    $file_size = $_FILES[$attribute]['size'];
+    $file_tmp = $_FILES[$attribute]['tmp_name'];
+    $file_error = $_FILES[$attribute]['error'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_type = finfo_file($finfo, $file_tmp);
+    finfo_close($finfo);
+    if ($file_error !== UPLOAD_ERR_OK) {
+      render_alert_banner('File upload error for ' . htmlspecialchars($attribute) . '.', 'danger', 10000);
+      continue;
+    }
+    if ($file_size > $max_file_size) {
+      render_alert_banner('File for ' . htmlspecialchars($attribute) . ' is too large (max 2MB).', 'danger', 10000);
+      continue;
+    }
+    if (!in_array($mime_type, $allowed_mime_types)) {
+      render_alert_banner('Invalid file type for ' . htmlspecialchars($attribute) . '. Allowed: images, PDF, text.', 'danger', 10000);
+      continue;
+    }
     $this_attribute = array();
     $this_attribute['count'] = 1;
-    $this_attribute[0] = file_get_contents($_FILES[$attribute]['tmp_name']);
+    $this_attribute[0] = file_get_contents($file_tmp);
     $$attribute = $this_attribute;
     $to_update[$attribute] = $this_attribute;
     unset($to_update[$attribute]['count']);
-
   }
 
   if (isset($_POST[$attribute])) {
@@ -135,10 +155,13 @@ if (!isset($gidnumber[0]) or !is_numeric($gidnumber[0])) {
 ######################################################################################
 
 $all_accounts = ldap_get_user_list($ldap_connection);
+if (!is_array($all_accounts)) {
+    $all_accounts = [];
+}
 $all_people = array();
 
 foreach ($all_accounts as $this_person => $attrs) {
-  array_push($all_people, $this_person);
+  array_push($all_people, htmlspecialchars($this_person));
 }
 
 $non_members = array_diff($all_people,$current_members);

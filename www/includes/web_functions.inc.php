@@ -1,4 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 include_once 'ldap_functions.inc.php';
 #Security level vars
 
@@ -36,12 +39,15 @@ include_once ("modules.inc.php");   # module definitions
 if (substr($SERVER_PATH, -1) != "/") { $SERVER_PATH .= "/"; }
 $THIS_MODULE_PATH="{$SERVER_PATH}{$THIS_MODULE}";
 
-$DEFAULT_COOKIE_OPTIONS = array( 'expires' => time()+(60 * $SESSION_TIMEOUT),
-                                 'path' => $SERVER_PATH,
-                                 'domain' => '',
-                                 'secure' => $NO_HTTPS ? FALSE : TRUE,
-                                 'samesite' => 'strict'
-                               );
+$DEFAULT_COOKIE_OPTIONS = array( 
+    'expires' => time()+(60 * $SESSION_TIMEOUT),
+    'path' => $SERVER_PATH,
+    'domain' => '',
+    // Allow Secure=false if $NO_HTTPS is true (e.g., behind a proxy)
+    'secure' => $NO_HTTPS ? FALSE : TRUE,
+    'httponly' => TRUE,
+    'samesite' => 'strict'
+);
 
 if ($REMOTE_HTTP_HEADERS_LOGIN) {
   login_via_headers();
@@ -87,6 +93,11 @@ function set_passkey_cookie($user_id,$is_admin) {
  setcookie('sessto_cookie', $this_time+(60 * $SESSION_TIMEOUT), $sessto_cookie_opts);
  if ( $SESSION_DEBUG == TRUE) {  error_log("$log_prefix Session: user $user_id validated (IS_ADMIN={$IS_ADMIN}), sent orf_cookie to the browser.",0); }
  $VALIDATED = TRUE;
+
+ // Regenerate session ID on login to prevent session fixation
+ if (session_status() === PHP_SESSION_ACTIVE) {
+     session_regenerate_id(true);
+ }
 
 }
 
@@ -184,6 +195,11 @@ function set_setup_cookie() {
  setcookie('setup_cookie', $passkey, $DEFAULT_COOKIE_OPTIONS);
 
  if ( $SESSION_DEBUG == TRUE) {  error_log("$log_prefix Setup session: sent setup_cookie to the client.",0); }
+
+ // Regenerate session ID on setup login to prevent session fixation
+ if (session_status() === PHP_SESSION_ACTIVE) {
+     session_regenerate_id(true);
+ }
 
 }
 
@@ -743,4 +759,25 @@ function render_alert_banner($message,$alert_class="success",$timeout=4000) {
 
 
 ##EoFile
+?>
+
+<?php
+// CSRF protection helpers
+function get_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+function csrf_token_field() {
+    $token = get_csrf_token();
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token) . '">';
+}
+function validate_csrf_token() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
+            die('<div class="alert alert-danger">Invalid CSRF token. Please reload the page and try again.</div>');
+        }
+    }
+}
 ?>

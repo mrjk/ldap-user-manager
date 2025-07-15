@@ -58,10 +58,31 @@ if ($SHOW_POSIX_ATTRIBUTES == TRUE) {
 foreach ($attribute_map as $attribute => $attr_r) {
 
   if (isset($_FILES[$attribute]['size']) and $_FILES[$attribute]['size'] > 0) {
-
+    // File upload validation
+    global $FILE_UPLOAD_MAX_SIZE, $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+    $max_file_size = $FILE_UPLOAD_MAX_SIZE;
+    $allowed_mime_types = $FILE_UPLOAD_ALLOWED_MIME_TYPES;
+    $file_size = $_FILES[$attribute]['size'];
+    $file_tmp = $_FILES[$attribute]['tmp_name'];
+    $file_error = $_FILES[$attribute]['error'];
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime_type = finfo_file($finfo, $file_tmp);
+    finfo_close($finfo);
+    if ($file_error !== UPLOAD_ERR_OK) {
+      render_alert_banner('File upload error for ' . htmlspecialchars($attribute) . '.', 'danger', 10000);
+      continue;
+    }
+    if ($file_size > $max_file_size) {
+      render_alert_banner('File for ' . htmlspecialchars($attribute) . ' is too large (max 2MB).', 'danger', 10000);
+      continue;
+    }
+    if (!in_array($mime_type, $allowed_mime_types)) {
+      render_alert_banner('Invalid file type for ' . htmlspecialchars($attribute) . '. Allowed: images, PDF, text.', 'danger', 10000);
+      continue;
+    }
     $this_attribute = array();
     $this_attribute['count'] = 1;
-    $this_attribute[0] = file_get_contents($_FILES[$attribute]['tmp_name']);
+    $this_attribute[0] = file_get_contents($file_tmp);
     $$attribute = $this_attribute;
     $new_account_r[$attribute] = $this_attribute;
     unset($new_account_r[$attribute]['count']);
@@ -209,7 +230,7 @@ if (isset($_POST['create_account'])) {
       $member_add = ldap_add_member_to_group($ldap_connection, $LDAP['admins_group'], $account_identifier);
       if (!$member_add) { ?>
        <div class="alert alert-warning">
-        <p class="text-center"><?php print $creation_message; ?> Unfortunately adding it to the admin group failed.</p>
+        <p class="text-center"><?php print htmlspecialchars($creation_message); ?> Unfortunately adding it to the admin group failed.</p>
        </div>
        <?php
       }
@@ -221,7 +242,7 @@ if (isset($_POST['create_account'])) {
 
    ?>
    <div class="alert alert-success">
-   <p class="text-center"><?php print $creation_message; ?></p>
+   <p class="text-center"><?php print htmlspecialchars($creation_message); ?></p>
    </div>
    <form action='<?php print $completed_action; ?>'>
     <p align="center">
@@ -271,7 +292,7 @@ if ($errors != "") { ?>
  <p class="text-align: center">
  There were issues creating the account:
  <ul>
- <?php print $errors; ?>
+ <?php print strip_tags($errors, '<li>'); ?>
  </ul>
  </p>
 </div>
@@ -350,7 +371,7 @@ $tabindex=1;
  <div class="col-sm-8 col-md-offset-2">
 
   <div class="panel panel-default">
-   <div class="panel-heading text-center"><?php print $page_title; ?></div>
+   <div class="panel-heading text-center"><?php print htmlspecialchars($page_title); ?></div>
    <div class="panel-body text-center">
 
     <form class="form-horizontal" action="" enctype="multipart/form-data" method="post">
@@ -358,6 +379,7 @@ $tabindex=1;
      <?php if ($admin_setup == TRUE) { ?><input type="hidden" name="setup_admin_account" value="true"><?php } ?>
      <input type="hidden" name="create_account">
      <input type="hidden" id="pass_score" value="0" name="pass_score">
+     <?= csrf_token_field() ?>
 
      <?php
        foreach ($attribute_map as $attribute => $attr_r) {

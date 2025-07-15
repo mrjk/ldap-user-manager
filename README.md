@@ -459,3 +459,33 @@ docker run \
              wheelybird/ldap-user-manager:latest
 ```
 Now go to https://localhost/setup - the password is `change_me` (unless you changed it).  As this will use self-signed certificates you might need to tell your browser to ignore certificate warnings.
+
+---
+
+### 1. **Configuration via Environment Variables**
+
+- **In `config.inc.php`:**
+  - `FILE_UPLOAD_MAX_SIZE` (default: 2MB) and `FILE_UPLOAD_ALLOWED_MIME_TYPES` (default: images, PDF, text) are now set from environment variables.
+  - All upload validation in the app uses these variables.
+
+- **How to use:**
+  - To change the max upload size (e.g., to 5MB):  
+    `-e FILE_UPLOAD_MAX_SIZE=5242880`
+  - To allow more file types (e.g., add ZIP):  
+    `-e FILE_UPLOAD_ALLOWED_MIME_TYPES="image/jpeg,image/png,application/pdf,application/zip"`
+
+---
+
+### 2. **README.md Documentation**
+
+- The new variables are now documented in the "Optional" section:
+  ```
+  * `FILE_UPLOAD_MAX_SIZE` (default: *2097152*): The maximum allowed file upload size in bytes. Default is 2MB (2 * 1024 * 1024). Example: `-e FILE_UPLOAD_MAX_SIZE=5242880` for 5MB.
+  * `FILE_UPLOAD_ALLOWED_MIME_TYPES` (default: *image/jpeg,image/png,image/gif,application/pdf,text/plain*): Comma-separated list of allowed MIME types for file uploads. Example: `-e FILE_UPLOAD_ALLOWED_MIME_TYPES="image/jpeg,image/png,application/pdf,application/zip"`.
+  ```
+
+---
+
+**You can now control file upload size and allowed types via Docker environment variables, and this is clearly documented for users.**
+
+Would you like to test this, or is there anything else you'd like to customize?

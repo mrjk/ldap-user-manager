@@ -193,51 +193,78 @@ function ldap_hashed_password($password) {
 
  global $PASSWORD_HASH, $log_prefix;
 
- $check_algos = array (
-                       "SHA512CRYPT" => "CRYPT_SHA512",
-                       "SHA256CRYPT" => "CRYPT_SHA256",
-                       # "BLOWFISH"    => "CRYPT_BLOWFISH",
-                       # "EXT_DES"     => "CRYPT_EXT_DES",
-                       "MD5CRYPT"    => "CRYPT_MD5"
-                      );
-
- $remaining_algos = array (
-                            "SSHA",
-                            "SHA",
-                            "SMD5",
-                            "MD5",
-                            "ARGON2",
-                            "CRYPT",
-                            "CLEAR"
-                          );
-
+ // Strongest to weakest
+ $preferred_algos = [
+     'ARGON2',
+     'SSHA',
+     'SHA512CRYPT',
+     'SHA256CRYPT',
+     'MD5CRYPT',
+     'SMD5',
+     'SHA',
+     'MD5',
+     'CRYPT',
+     'CLEAR'
+ ];
+ $check_algos = array(
+     "SHA512CRYPT" => "CRYPT_SHA512",
+     "SHA256CRYPT" => "CRYPT_SHA256",
+     "MD5CRYPT"    => "CRYPT_MD5"
+ );
  $available_algos = array();
-
  foreach ($check_algos as $algo_name => $algo_function) {
-   if (defined($algo_function) and constant($algo_function) != 0) {
-     array_push($available_algos, $algo_name);
-   }
-   else {
-     error_log("$log_prefix password hashing - the system doesn't support {$algo_name}",0);
-   }
+     if (defined($algo_function) and constant($algo_function) != 0) {
+         array_push($available_algos, $algo_name);
+     }
  }
- $available_algos = array_merge($available_algos, $remaining_algos);
+ // Always allow ARGON2 and SSHA
+ $available_algos = array_merge(['ARGON2', 'SSHA'], $available_algos, ['SMD5', 'SHA', 'MD5', 'CRYPT']);
 
+ // Select the best available algorithm
+ $hash_algo = null;
  if (isset($PASSWORD_HASH)) {
-   if (!in_array($PASSWORD_HASH, $available_algos)) {
-     $hash_algo = $available_algos[0];
-     error_log("$log_prefix LDAP password: the chosen hash method ($PASSWORD_HASH) wasn't available",0);
-   }
-   else {
-     $hash_algo = $PASSWORD_HASH;
-   }
+     $PASSWORD_HASH = strtoupper($PASSWORD_HASH);
+     if (!in_array($PASSWORD_HASH, $preferred_algos)) {
+         error_log("$log_prefix LDAP password: unknown hash method ($PASSWORD_HASH), falling back to secure default", 0);
+     } elseif ($PASSWORD_HASH === 'CLEAR') {
+         error_log("$log_prefix password hashing - FATAL - CLEAR selected, refusing to store password in cleartext.", 0);
+         die("FATAL: Refusing to store password in cleartext. Set PASSWORD_HASH to a secure value (ARGON2 or SSHA recommended).");
+     } elseif (in_array($PASSWORD_HASH, ['MD5', 'SMD5', 'SHA', 'CRYPT'])) {
+         error_log("$log_prefix password hashing - WARNING - Weak hash method ($PASSWORD_HASH) selected. Use ARGON2 or SSHA.", 0);
+         $hash_algo = $PASSWORD_HASH;
+     } elseif (in_array($PASSWORD_HASH, $available_algos)) {
+         $hash_algo = $PASSWORD_HASH;
+     }
  }
- else {
-   $hash_algo = $available_algos[0];
+ if (!$hash_algo) {
+     // Default to strongest available
+     foreach ($preferred_algos as $algo) {
+         if ($algo === 'CLEAR') continue;
+         if ($algo === 'ARGON2' && defined('PASSWORD_ARGON2ID')) {
+             $hash_algo = 'ARGON2';
+             break;
+         }
+         if (in_array($algo, $available_algos)) {
+             $hash_algo = $algo;
+             break;
+         }
+     }
+ }
+ if (!$hash_algo) {
+     die("FATAL: No secure password hash available. Check your PHP and system configuration.");
  }
  error_log("$log_prefix LDAP password: using '{$hash_algo}' as the hashing method",0);
 
  switch ($hash_algo) {
+
+  case 'ARGON2':
+    $hashed_pwd = '{ARGON2}' . password_hash($password, PASSWORD_ARGON2ID, ['memory_cost' => 2048, 'time_cost' => 4, 'threads' => 3]);
+    break;
+
+  case 'SSHA':
+    $salt = generate_salt(8);
+    $hashed_pwd = '{SSHA}' . base64_encode(sha1($password . $salt, TRUE) . $salt);
+    break;
 
   case 'SHA512CRYPT':
     $hashed_pwd = '{CRYPT}' . crypt($password, '$6$' . generate_salt(8));
@@ -516,33 +543,37 @@ function ldap_get_group_members($ldap_connection,$group_name,$start=0,$entries=N
 
 ##################################
 
-function ldap_is_group_member($ldap_connection,$group_name,$username) {
+function ldap_is_group_member($ldap_connection, $group_name, $username) {
+    global $log_prefix, $LDAP, $LDAP_DEBUG;
 
- global $log_prefix, $LDAP, $LDAP_DEBUG;
+    if (empty($group_name) || empty($username)) {
+        return FALSE;
+    }
 
- $rfc2307bis_available = ldap_detect_rfc2307bis($ldap_connection);
+    $rfc2307bis_available = ldap_detect_rfc2307bis($ldap_connection);
 
- $ldap_search_query = "({$LDAP['group_attribute']}=" . ldap_escape($group_name, "", LDAP_ESCAPE_FILTER) . ")";
- $ldap_search = @ ldap_search($ldap_connection, "{$LDAP['group_dn']}", $ldap_search_query);
+    $ldap_search_query = "({$LDAP['group_attribute']}=" . ldap_escape($group_name, "", LDAP_ESCAPE_FILTER) . ")";
+    $ldap_search = @ldap_search($ldap_connection, "{$LDAP['group_dn']}", $ldap_search_query);
 
- if ($ldap_search) {
-   $result = ldap_get_entries($ldap_connection, $ldap_search);
+    if ($ldap_search) {
+        $result = ldap_get_entries($ldap_connection, $ldap_search);
 
-   if ($LDAP['group_membership_uses_uid'] == FALSE) {
-     $username = "{$LDAP['account_attribute']}=$username,{$LDAP['user_dn']}";
-   }
+        if ($LDAP['group_membership_uses_uid'] == FALSE) {
+            $username = "{$LDAP['account_attribute']}=$username,{$LDAP['user_dn']}";
+        }
 
-   if (preg_grep ("/^{$username}$/i", $result[0][$LDAP['group_membership_attribute']])) {
-     return TRUE;
-   }
-   else {
-     return FALSE;
-   }
- }
- else {
-  return FALSE;
- }
+        $members = isset($result[0][$LDAP['group_membership_attribute']]) && is_array($result[0][$LDAP['group_membership_attribute']])
+            ? $result[0][$LDAP['group_membership_attribute']]
+            : [];
 
+        if (preg_grep("/^{$username}$/i", $members)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    } else {
+        return FALSE;
+    }
 }
 
 

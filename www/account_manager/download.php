@@ -27,10 +27,21 @@ if ($ldap_search) {
   if ($records['count'] == 1) {
     $this_record = $records[0];
       if (isset($this_record[$this_attribute][0])) {
-        header("Content-Type: application/octet-stream");
-        header("Cache-Control: no-cache private");
+        // Determine MIME type from data
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_buffer($finfo, $this_record[$this_attribute][0]);
+        finfo_close($finfo);
+        if (!$mime_type) {
+          $mime_type = 'application/octet-stream';
+        }
+        // Sanitize filename (allow only safe chars)
+        $safe_resource = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_resource);
+        $safe_attribute = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_attribute);
+        $filename = $safe_resource . '.' . $safe_attribute;
+        header("Content-Type: $mime_type");
+        header("Cache-Control: no-cache, private");
         header("Content-Transfer-Encoding: Binary");
-        header("Content-disposition: attachment; filename='{$this_resource}.{$this_attribute}'");
+        header("Content-Disposition: attachment; filename=\"$filename\"");
         header("Content-Length: ". strlen($this_record[$this_attribute][0]));
         print $this_record[$this_attribute][0];
       }

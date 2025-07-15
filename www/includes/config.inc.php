@@ -202,6 +202,12 @@ $PHPMailer_PATH = (getenv('PHPMailer_PATH') ? getenv('PHPMailer_PATH') : '/opt/P
   exit(1);
  }
 
-
+ // File upload configuration
+$FILE_UPLOAD_MAX_SIZE = getenv('FILE_UPLOAD_MAX_SIZE') ? intval(getenv('FILE_UPLOAD_MAX_SIZE')) : 2 * 1024 * 1024; // Default 2MB
+$FILE_UPLOAD_ALLOWED_MIME_TYPES = getenv('FILE_UPLOAD_ALLOWED_MIME_TYPES')
+    ? array_map('trim', explode(',', getenv('FILE_UPLOAD_ALLOWED_MIME_TYPES')))
+    : [
+        'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'
+      ];
 
 ?>

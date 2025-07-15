@@ -15,6 +15,9 @@ if (!(currentUserIsGlobalAdmin() || currentUserIsMaintainer() || currentUserIsOr
 
 $orgName = isset($_GET['org']) ? $_GET['org'] : '';
 $orgs = listOrganizations();
+if (!is_array($orgs)) {
+    $orgs = [];
+}
 
 // Validate orgName
 $orgExists = false;
@@ -27,12 +30,15 @@ foreach ($orgs as $org) {
 }
 
 render_header('User Management for Organization');
+render_submenu();
 
 if (!$orgName || !$orgExists) {
     echo "<div class='alert alert-warning'>Please select a valid organization.</div>";
     echo '<ul>';
     foreach ($orgs as $org) {
-        echo '<li><a href="org_users.php?org=' . urlencode($org['o'][0]) . '">' . htmlspecialchars($org['o'][0]) . '</a></li>';
+        $orgNameVal = isset($org['o'][0]) ? $org['o'][0] : '';
+        if ($orgNameVal === '') continue;
+        echo '<li><a href="org_users.php?org=' . urlencode($orgNameVal) . '">' . htmlspecialchars($orgNameVal) . '</a></li>';
     }
     echo '</ul>';
     render_footer();
@@ -110,6 +116,9 @@ $message_type = '';
 
 // Handle add user form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        validate_csrf_token();
+    }
     $uid = trim($_POST['uid']);
     $cn = trim($_POST['cn']);
     $sn = trim($_POST['sn']);
@@ -118,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     $passcode = $_POST['passcode'];
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
-    $userDn = "uid=$uid,$usersDn";
+    $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . ",$usersDn";
 
     // Server-side validation
     if ($uid === '' || $cn === '' || $sn === '' || $mail === '' || $password === '') {
@@ -127,6 +136,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     } else {
         // Check for duplicate uid
         $existingUsers = getUsersInOrg($orgName);
+        if (!is_array($existingUsers)) {
+            $existingUsers = [];
+        }
         $uids = array_map(function($u) { return strtolower($u['uid'][0] ?? ''); }, $existingUsers);
         if (in_array(strtolower($uid), $uids)) {
             $message = 'A user with this username already exists in this organization.';
@@ -161,7 +173,7 @@ if (isset($_GET['delete_user'])) {
     $uidToDelete = $_GET['delete_user'];
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
-    $userDn = "uid=$uidToDelete,$usersDn";
+    $userDn = "uid=" . ldap_escape($uidToDelete, '', LDAP_ESCAPE_DN) . ",$usersDn";
     $ldap = open_ldap_connection();
     try {
         ldap_delete($ldap, $userDn);
@@ -178,6 +190,9 @@ $editUser = null;
 if (isset($_GET['edit_user'])) {
     $uidToEdit = $_GET['edit_user'];
     $existingUsers = getUsersInOrg($orgName);
+    if (!is_array($existingUsers)) {
+        $existingUsers = [];
+    }
     foreach ($existingUsers as $user) {
         if (strtolower($user['uid'][0]) === strtolower($uidToEdit)) {
             $editUser = $user;
@@ -186,6 +201,9 @@ if (isset($_GET['edit_user'])) {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        validate_csrf_token();
+    }
     $uid = trim($_POST['edit_uid']);
     $cn = trim($_POST['edit_cn']);
     $sn = trim($_POST['edit_sn']);
@@ -194,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
     $passcode = $_POST['edit_passcode'];
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
-    $userDn = "uid=$uid,$usersDn";
+    $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . ",$usersDn";
     $ldap = open_ldap_connection();
     $entry = [
         'cn' => $cn,
@@ -219,12 +237,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
 
 // Handle reset password/passcode
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_creds'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        validate_csrf_token();
+    }
     $uid = trim($_POST['reset_uid']);
     $new_password = $_POST['reset_password'];
     $new_passcode = $_POST['reset_passcode'];
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
-    $userDn = "uid=$uid,$usersDn";
+    $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . ",$usersDn";
     $ldap = open_ldap_connection();
     $entry = [];
     if ($new_password !== '') {
@@ -249,6 +270,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_creds'])) {
 }
 
 $users = getUsersInOrg($orgName);
+if (!is_array($users)) {
+    $users = [];
+}
 $orgManagerDns = getOrgManagerDns($orgName);
 ?>
 <div class="container">
@@ -295,6 +319,7 @@ $orgManagerDns = getOrgManagerDns($orgName);
     </table>
     <h3>Add User to Organization</h3>
     <form method="post" class="mb-4" id="add_user_form" onsubmit="return validateAddUserForm();">
+        <?= csrf_token_field() ?>
         <div class="form-group">
             <label for="uid">Username</label>
             <input type="text" class="form-control" name="uid" id="uid" required>
@@ -329,6 +354,7 @@ $orgManagerDns = getOrgManagerDns($orgName);
       <div class="modal-dialog">
         <div class="modal-content border-primary">
           <form method="post">
+            <?= csrf_token_field() ?>
             <div class="modal-header bg-primary text-white">
               <h5 class="modal-title">Edit User: <?= htmlspecialchars($editUser['uid'][0]) ?></h5>
               <a href="org_users.php?org=<?= urlencode($orgName) ?>" class="close text-white">&times;</a>
@@ -370,6 +396,7 @@ $orgManagerDns = getOrgManagerDns($orgName);
       <div class="modal-dialog">
         <div class="modal-content border-warning">
           <form method="post">
+            <?= csrf_token_field() ?>
             <div class="modal-header bg-warning text-dark">
               <h5 class="modal-title">Reset Credentials for <?= htmlspecialchars($resetUid) ?></h5>
               <a href="org_users.php?org=<?= urlencode($orgName) ?>" class="close text-dark">&times;</a>
