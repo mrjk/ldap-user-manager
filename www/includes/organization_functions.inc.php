@@ -27,7 +27,7 @@ function createOrganization($orgData) {
     }
 
     $orgEntry = [
-        'objectClass' => ['top', 'organization', 'locality'],
+        'objectClass' => ['top', 'organization'],
         'o' => $orgData['o'],
         'l' => $orgData['l'],
         'postalCode' => $orgData['postalCode'],
