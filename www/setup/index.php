@@ -14,9 +14,11 @@ if (isset($_POST["admin_password"])) {
  if ($user_auth != FALSE) {
   set_setup_cookie($user_auth);
   header("Location: //{$_SERVER["HTTP_HOST"]}{$THIS_MODULE_PATH}/run_checks.php\n\n");
+  exit;
  }
  else {
   header("Location: //{$_SERVER["HTTP_HOST"]}{$THIS_MODULE_PATH}/index.php?invalid\n\n");
+  exit;
  }
 
 }

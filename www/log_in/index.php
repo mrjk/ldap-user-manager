@@ -5,20 +5,7 @@ set_include_path( ".:" . __DIR__ . "/../includes/");
 include_once "web_functions.inc.php";
 include_once "ldap_functions.inc.php";
 
-if (isset($_GET["unauthorised"])) { $display_unauth = TRUE; }
-if (isset($_GET["session_timeout"])) { $display_logged_out = TRUE; }
-if (isset($_GET["redirect_to"])) { $redirect_to = $_GET["redirect_to"]; }
-
-if (isset($_GET['logged_out'])) {
-?>
-<div class="alert alert-warning">
-<p class="text-center">You've been automatically logged out because you've been inactive for over
-<?php print $SESSION_TIMEOUT; ?> minutes. Click on the 'Log in' link to get back into the system.</p>
-</div>
-<?php
-}
-
-
+// Handle login POST before any output
 if (isset($_POST["user_id"]) and (isset($_POST["password"]) || isset($_POST["passcode"]))) {
 
  $ldap_connection = open_ldap_connection();
@@ -42,31 +29,45 @@ if (isset($_POST["user_id"]) and (isset($_POST["password"]) || isset($_POST["pas
  ldap_close($ldap_connection);
 
  if ($account_id != FALSE) {
-
   set_passkey_cookie($account_id,$is_admin);
   if (isset($_POST["redirect_to"])) {
-   header("Location: //{$_SERVER['HTTP_HOST']}" . base64_decode($_POST['redirect_to']) . "\n\n");
+   header("Location: //{$_SERVER['HTTP_HOST']}" . base64_decode($_POST['redirect_to']));
+   exit;
   }
   else {
    if ($IS_ADMIN) { $default_module = "account_manager"; } else { $default_module = "change_password"; }
-   header("Location: //{$_SERVER['HTTP_HOST']}{$SERVER_PATH}$default_module?logged_in\n\n");
+   header("Location: //{$_SERVER['HTTP_HOST']}{$SERVER_PATH}$default_module?logged_in");
+   exit;
   }
  }
  else {
-  header("Location: //{$_SERVER['HTTP_HOST']}{$THIS_MODULE_PATH}/index.php?invalid\n\n");
+  header("Location: //{$_SERVER['HTTP_HOST']}{$THIS_MODULE_PATH}/index.php?invalid");
+  exit;
  }
 }
-else {
 
- render_header("$ORGANISATION_NAME account manager - log in");
+// Only render HTML after all possible headers are sent
 
- ?>
+if (isset($_GET["unauthorised"])) { $display_unauth = TRUE; }
+if (isset($_GET["session_timeout"])) { $display_logged_out = TRUE; }
+if (isset($_GET["redirect_to"])) { $redirect_to = $_GET["redirect_to"]; }
+
+render_header("$ORGANISATION_NAME account manager - log in");
+
+?>
 <div class="container">
  <div class="col-sm-8 col-sm-offset-2">
 
   <div class="panel panel-default">
    <div class="panel-heading text-center">Log in</div>
    <div class="panel-body text-center">
+
+   <?php if (isset($_GET['logged_out'])) { ?>
+   <div class="alert alert-warning">
+   <p class="text-center">You've been automatically logged out because you've been inactive for
+   <?php print $SESSION_TIMEOUT; ?> minutes. Click on the 'Log in' link to get back into the system.</p>
+   </div>
+   <?php } ?>
 
    <?php if (isset($display_unauth)) { ?>
    <div class="alert alert-warning">
@@ -119,6 +120,5 @@ else {
  </div>
 </div>
 <?php
-}
 render_footer();
 ?>
