@@ -1,0 +1,9 @@
+dn: cn=orgWithCountry,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: orgWithCountry
+olcObjectClasses: ( 1.3.6.1.4.1.4203.666.1.200
+  NAME 'orgWithCountry'
+  DESC 'Auxiliary object class to allow countryName (c) for organizations'
+  SUP top
+  AUXILIARY
+  MAY ( c ) ) 

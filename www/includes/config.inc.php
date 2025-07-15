@@ -84,8 +84,8 @@
 
  # Various advanced LDAP settings
 
- $LDAP['admins_group'] = getenv('LDAP_ADMINS_GROUP') ?: null;
- $LDAP['maintainers_group'] = getenv('LDAP_MAINTAINERS_GROUP') ?: null;
+ $LDAP['admins_group'] = getenv('LDAP_ADMINS_GROUP') ?: 'admins';
+ $LDAP['maintainers_group'] = getenv('LDAP_MAINTAINERS_GROUP') ?: 'maintainers';
  $LDAP['group_ou'] = (getenv('LDAP_GROUP_OU') ? getenv('LDAP_GROUP_OU') : 'groups');
  $LDAP['user_ou'] = (getenv('LDAP_USER_OU') ? getenv('LDAP_USER_OU') : 'people');
  $LDAP['org_ou'] = (getenv('LDAP_ORG_OU') ? getenv('LDAP_ORG_OU') : 'organizations');

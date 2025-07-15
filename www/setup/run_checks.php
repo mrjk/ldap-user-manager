@@ -93,6 +93,39 @@ else {
      </div>
 
      <div class="panel panel-default">
+      <div class="panel-heading">LDAP orgWithCountry schema check</div>
+      <div class="panel-body">
+       <ul class="list-group">
+<?php
+// Check for orgWithCountry object class in the schema
+$orgWithCountry_supported = false;
+$schema_search = @ldap_search($ldap_connection, "cn=schema,cn=config", "(olcObjectClasses=*orgWithCountry*)", ['olcObjectClasses']);
+if ($schema_search) {
+    $schema_entries = ldap_get_entries($ldap_connection, $schema_search);
+    foreach ($schema_entries as $entry) {
+        if (isset($entry['olcobjectclasses'])) {
+            foreach ($entry['olcobjectclasses'] as $oc) {
+                if (stripos($oc, 'orgWithCountry') !== false) {
+                    $orgWithCountry_supported = true;
+                    break 2;
+                }
+            }
+        }
+    }
+}
+if ($orgWithCountry_supported) {
+    print "$li_good The orgWithCountry auxiliary object class is present in the LDAP schema. You can store country codes in organization entries.</li>";
+} else {
+    print "$li_warn The orgWithCountry auxiliary object class is <strong>not present</strong> in the LDAP schema. <br>To enable country support for organizations, ask your LDAP administrator to load <code>ldif/orgWithCountry.ldif</code> on the LDAP server.";
+    print "<a href='#' data-toggle='popover' title='orgWithCountry schema' data-content='This schema extension allows you to store country codes (c) in organization entries. See the documentation for details.'>What's this?</a></li>";
+    $show_finish_button = FALSE;
+}
+?>
+       </ul>
+      </div>
+     </div>
+
+     <div class="panel panel-default">
       <div class="panel-heading">LDAP OU checks</div>
       <div class="panel-body">
        <ul class="list-group">

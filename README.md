@@ -425,6 +425,67 @@ If for some reason you do have the schema available but it isn't being detected 
 
 ***
 
+## LDAP Schema Requirements and Organization Attribute Handling
+
+### Required Schemas
+
+LDAP User Manager requires the following schemas to fully support all organization attributes:
+
+- **core, cosine, inetorgperson, organization, locality** (standard OpenLDAP schemas)
+- **orgWithCountry** (custom auxiliary object class, provided in this repository)
+
+#### Why is a custom schema needed?
+
+The standard `organization` object class does **not** allow the `c` (country) attribute, and only supports a limited set of attributes. To allow organizations to have a country field (and to avoid object class violations), a custom auxiliary object class `orgWithCountry` is provided. This enables the `c` attribute to be set directly on organization entries.
+
+### Loading the orgWithCountry Schema
+
+1. Locate the provided LDIF file: `ldif/base.ldif` (or `ldif/orgWithCountry.ldif` if present).
+2. Load the schema into your OpenLDAP server. For example:
+   ```
+   ldapadd -Y EXTERNAL -H ldapi:/// -f ldif/base.ldif
+   ```
+   or, if using a separate file:
+   ```
+   ldapadd -Y EXTERNAL -H ldapi:/// -f ldif/orgWithCountry.ldif
+   ```
+3. Restart your LDAP server if required.
+
+> **Note:** The setup wizard and organization creation UI will check for the presence of the `orgWithCountry` schema and provide guidance if it is missing.
+
+### Organization Attribute Storage
+
+Due to LDAP schema constraints, only the following attributes are stored directly on the main organization entry:
+
+- `o` (organization name)
+- `description`
+- `telephoneNumber`
+- `c` (country) — **only if `orgWithCountry` is loaded**
+
+Other attributes (such as `l`/city, `postalCode`, `mail`, `facsimileTelephoneNumber`, `seeAlso`, `street`, `st`, `physicalDeliveryOfficeName`, `destinationIndicator`, `internationalISDNNumber`, `registeredAddress`, `teletexTerminalIdentifier`, `telexNumber`, `x121Address`, `preferredDeliveryMethod`, `businessCategory`, `homePostalAddress`, `janetMailbox`, `userPassword`, `searchGuide`) are not allowed by the standard `organization` object class. To support these, LDAP User Manager creates a subordinate `locality` entry under the organization DN, where these extra attributes are stored.
+
+#### Example Structure
+
+```
+o=ExampleOrg,ou=organizations,dc=example,dc=com
+  |-- l=City,ou=organizations,dc=example,dc=com
+```
+- The main organization entry holds allowed attributes (and `c` if schema is present).
+- The subordinate `locality` entry holds city, postal code, email, website, fax, etc.
+
+### Troubleshooting Schema Errors
+
+- If you see errors about `objectClass violation` or `attribute not allowed`, ensure the `orgWithCountry` schema is loaded and that your LDAP server supports the required attributes.
+- The setup wizard and organization UI will warn you if the schema is missing or if attributes cannot be stored.
+- If you do not need the country field, you may omit loading the custom schema, but the country field will be unavailable.
+
+### Reference: LDIF File
+
+- The schema LDIF is provided in `ldif/base.ldif` (or `ldif/orgWithCountry.ldif`).
+- Review and load this file as part of your LDAP server setup.
+
+***
+
 ## Testing with an OpenLDAP container
 
 This will set up an OpenLDAP container you can use to test the user manager against.  It uses the RFC2307BIS schema.

@@ -83,7 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_org'])) {
                 $orgs = listOrganizations();
                 $orgNames = array_map(function($org) { return strtolower($org['o'][0] ?? ''); }, $orgs);
             } else {
-                $message = 'Error creating organization: ' . htmlspecialchars($msg);
+                // Detect object class violation for orgWithCountry
+                if (strpos($msg, 'object class') !== false || strpos($msg, 'orgWithCountry') !== false) {
+                    $message = 'Error creating organization: Your LDAP server does not support the orgWithCountry object class. Please ask your LDAP administrator to load the schema from <code>ldif/orgWithCountry.ldif</code>.';
+                } else {
+                    $message = 'Error creating organization: ' . htmlspecialchars($msg);
+                }
                 $message_type = 'danger';
             }
         } catch (Exception $e) {
