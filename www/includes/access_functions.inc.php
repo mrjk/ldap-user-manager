@@ -1,12 +1,12 @@
 <?php
 function currentUserIsGlobalAdmin() {
     global $LDAP, $currentUserGroups;
-    return isset($LDAP['admins_group']) && in_array($LDAP['admins_group'], $currentUserGroups);
+    return isset($LDAP['admins_group']) && in_array($LDAP['admins_group'], is_array($currentUserGroups) ? $currentUserGroups : []);
 }
 
 function currentUserIsMaintainer() {
     global $LDAP, $currentUserGroups;
-    return isset($LDAP['maintainers_group']) && in_array($LDAP['maintainers_group'], $currentUserGroups);
+    return isset($LDAP['maintainers_group']) && in_array($LDAP['maintainers_group'], is_array($currentUserGroups) ? $currentUserGroups : []);
 }
 
 function currentUserIsOrgManager($orgName) {
