@@ -1,8 +1,8 @@
 <?php
-require_once '../includes/organization_functions.inc.php';
-require_once '../includes/ldap_functions.inc.php';
-require_once '../includes/web_functions.inc.php';
-require_once '../includes/access_functions.inc.php';
+include_once 'organization_functions.inc.php';
+include_once 'ldap_functions.inc.php';
+include_once 'web_functions.inc.php';
+include_once 'access_functions.inc.php';
 
 // Access control: only admins, maintainers, or org managers for this org
 if (!(currentUserIsGlobalAdmin() || currentUserIsMaintainer() || currentUserIsOrgManager($orgName))) {

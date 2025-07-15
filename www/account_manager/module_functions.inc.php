@@ -16,7 +16,8 @@ function render_submenu() {
     <div class="container-fluid">
      <ul class="nav navbar-nav">
       <?php
-      foreach ($submodules as $submodule => $path) {
+      foreach (
+        $submodules as $submodule => $path) {
 
        if (basename($_SERVER['SCRIPT_FILENAME']) == $path) {
         print "<li class='active'>";
@@ -26,6 +27,11 @@ function render_submenu() {
        }
        print "<a href='{$THIS_MODULE_PATH}/{$path}'>" . ucwords($submodule) . "</a></li>\n";
 
+      }
+      // Add Organizations link for admins/maintainers
+      if (function_exists('currentUserIsGlobalAdmin') && function_exists('currentUserIsMaintainer') && (currentUserIsGlobalAdmin() || currentUserIsMaintainer())) {
+        $active = (basename($_SERVER['SCRIPT_FILENAME']) == 'organizations.php') ? " class='active'" : "";
+        print "<li$active><a href='organizations.php'>Organizations</a></li>\n";
       }
      ?>
      </ul>

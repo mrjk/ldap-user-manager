@@ -1,7 +1,7 @@
 <?php
 
-require_once "ldap_functions.inc.php";
-require_once "config.inc.php";
+include_once "ldap_functions.inc.php";
+include_once "config.inc.php";
 
 function createOrganization($orgData) {
     global $LDAP;
