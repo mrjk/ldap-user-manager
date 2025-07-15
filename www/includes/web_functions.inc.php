@@ -1,4 +1,5 @@
 <?php
+include_once 'ldap_functions.inc.php';
 #Security level vars
 
 $VALIDATED = FALSE;
