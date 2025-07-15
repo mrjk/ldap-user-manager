@@ -19,5 +19,3 @@ if ($ACCOUNT_REQUESTS_ENABLED == TRUE) {
 if (!$REMOTE_HTTP_HEADERS_LOGIN) {
   $MODULES['log_out'] = 'auth';
 }
-
-?>

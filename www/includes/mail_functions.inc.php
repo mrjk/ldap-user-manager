@@ -85,5 +85,3 @@ function send_email($recipient_email,$recipient_name,$subject,$body) {
   }
 
 }
-
-?>

@@ -210,4 +210,3 @@ $FILE_UPLOAD_ALLOWED_MIME_TYPES = getenv('FILE_UPLOAD_ALLOWED_MIME_TYPES')
         'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain'
       ];
 
-?>

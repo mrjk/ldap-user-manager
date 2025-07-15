@@ -26,4 +26,3 @@ function currentUserIsOrgManager($orgName) {
     }
     return false;
 }
-?>

@@ -1147,4 +1147,3 @@ function ldap_detect_rfc2307bis($ldap_connection) {
 
 }
 
-?>

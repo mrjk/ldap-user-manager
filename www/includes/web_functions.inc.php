@@ -759,9 +759,7 @@ function render_alert_banner($message,$alert_class="success",$timeout=4000) {
 
 
 ##EoFile
-?>
 
-<?php
 // CSRF protection helpers
 function get_csrf_token() {
     if (empty($_SESSION['csrf_token'])) {
@@ -780,4 +778,3 @@ function validate_csrf_token() {
         }
     }
 }
-?>
