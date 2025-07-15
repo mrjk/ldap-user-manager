@@ -2,8 +2,8 @@
 
 set_include_path( ".:" . __DIR__ . "/../includes/");
 
-include "web_functions.inc.php";
-include "ldap_functions.inc.php";
+include_once "web_functions.inc.php";
+include_once "ldap_functions.inc.php";
 
 if (isset($_GET["unauthorised"])) { $display_unauth = TRUE; }
 if (isset($_GET["session_timeout"])) { $display_logged_out = TRUE; }

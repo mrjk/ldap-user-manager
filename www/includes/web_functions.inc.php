@@ -30,8 +30,8 @@ else {
   $SITE_PROTOCOL = 'http://';
 }
 
-include ("config.inc.php");    # get local settings
-include ("modules.inc.php");   # module definitions
+include_once ("config.inc.php");    # get local settings
+include_once ("modules.inc.php");   # module definitions
 
 if (substr($SERVER_PATH, -1) != "/") { $SERVER_PATH .= "/"; }
 $THIS_MODULE_PATH="{$SERVER_PATH}{$THIS_MODULE}";
