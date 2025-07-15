@@ -24,6 +24,12 @@ EXPOSE 443
 COPY www/ /opt/ldap_user_manager
 RUN tar -xzf /tmp/v6.3.0.tar.gz -C /opt && mv /opt/PHPMailer-6.3.0 /opt/PHPMailer
 
+# Set ownership to www-data (or your web server user)
+RUN chown -R www-data:www-data /opt/ldap_user_manager
+
+RUN find /opt/ldap_user_manager -type d -exec chmod 755 {} \;
+RUN find /opt/ldap_user_manager -type f -exec chmod 644 {} \;
+
 COPY entrypoint /usr/local/bin/entrypoint
 RUN chmod a+x /usr/local/bin/entrypoint && touch /etc/ldap/ldap.conf
 
