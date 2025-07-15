@@ -117,7 +117,9 @@ if (isset($_GET['toggle_manager']) && isset($_GET['uid'])) {
         ];
         $orgAdmins_create = @ldap_add($ldap, $orgAdminsDn, $orgAdminsGroup);
         if (!$orgAdmins_create) {
-            $message = 'Failed to create OrgAdmins group for this organization: ' . ldap_error($ldap);
+            $ldap_err = ldap_error($ldap);
+            error_log("Failed to create OrgAdmins group at DN: $orgAdminsDn -- LDAP error: $ldap_err");
+            $message = 'Failed to create OrgAdmins group for this organization: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($orgAdminsDn);
             $message_type = 'danger';
             goto after_toggle_manager;
         }
@@ -177,7 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
         ];
         $ou_create = @ldap_add($ldap, $usersDn, $usersOU);
         if (!$ou_create) {
-            $message = 'Failed to create Users OU for this organization: ' . ldap_error($ldap);
+            $ldap_err = ldap_error($ldap);
+            error_log("Failed to create Users OU at DN: $usersDn -- LDAP error: $ldap_err");
+            $message = 'Failed to create Users OU for this organization: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($usersDn);
             $message_type = 'danger';
             // Don't proceed if we can't create the OU
             goto after_add_user;
