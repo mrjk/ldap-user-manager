@@ -96,6 +96,34 @@ if (isset($_GET['toggle_manager']) && isset($_GET['uid'])) {
     $uid = $_GET['uid'];
     $userDn = getUserDn($orgName, $uid);
     $orgManagerDns = getOrgManagerDns($orgName);
+    $ldap = open_ldap_connection();
+    $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
+    $orgAdminsDn = "cn=OrgAdmins,o={$orgRDN}," . $LDAP['org_dn'];
+    // Ensure OrgAdmins group exists
+    $orgAdmins_search = @ldap_read($ldap, $orgAdminsDn, '(objectClass=groupOfNames)', ['cn']);
+    $orgAdmins_exists = false;
+    if ($orgAdmins_search) {
+        $orgAdmins_entries = ldap_get_entries($ldap, $orgAdmins_search);
+        if ($orgAdmins_entries && $orgAdmins_entries['count'] > 0) {
+            $orgAdmins_exists = true;
+        }
+    }
+    if (!$orgAdmins_exists) {
+        global $USER_DN;
+        $orgAdminsGroup = [
+            'objectClass' => ['top', 'groupOfNames'],
+            'cn' => 'OrgAdmins',
+            'member' => [$USER_DN]
+        ];
+        $orgAdmins_create = @ldap_add($ldap, $orgAdminsDn, $orgAdminsGroup);
+        if (!$orgAdmins_create) {
+            $message = 'Failed to create OrgAdmins group for this organization: ' . ldap_error($ldap);
+            $message_type = 'danger';
+            goto after_toggle_manager;
+        }
+        // Refresh orgManagerDns after creation
+        $orgManagerDns = getOrgManagerDns($orgName);
+    }
     try {
         if (in_array($userDn, $orgManagerDns)) {
             removeUserFromOrgManagers($orgName, $userDn);
@@ -110,6 +138,7 @@ if (isset($_GET['toggle_manager']) && isset($_GET['uid'])) {
         $message = 'Error updating Org Manager role: ' . htmlspecialchars($e->getMessage());
         $message_type = 'danger';
     }
+    after_toggle_manager:
 }
 
 // Message handling
@@ -129,7 +158,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     $passcode = $_POST['passcode'];
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
-    $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . ",$usersDn";
+    $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . "," . $usersDn;
+
+    // Ensure ou=Users exists
+    $ldap = open_ldap_connection();
+    $ou_search = @ldap_read($ldap, $usersDn, '(objectClass=organizationalUnit)', ['ou']);
+    $ou_exists = false;
+    if ($ou_search) {
+        $ou_entries = ldap_get_entries($ldap, $ou_search);
+        if ($ou_entries && $ou_entries['count'] > 0) {
+            $ou_exists = true;
+        }
+    }
+    if (!$ou_exists) {
+        $usersOU = [
+            'objectClass' => ['top', 'organizationalUnit'],
+            'ou' => 'Users'
+        ];
+        $ou_create = @ldap_add($ldap, $usersDn, $usersOU);
+        if (!$ou_create) {
+            $message = 'Failed to create Users OU for this organization: ' . ldap_error($ldap);
+            $message_type = 'danger';
+            // Don't proceed if we can't create the OU
+            goto after_add_user;
+        }
+    }
 
     // Server-side validation
     if ($uid === '' || $cn === '' || $sn === '' || $mail === '' || $password === '') {
@@ -157,7 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
             if ($passcode !== '') {
                 $entry['loginPasscode'] = password_hash($passcode, PASSWORD_DEFAULT); // Store passcode as hash
             }
-            $ldap = open_ldap_connection();
             try {
                 ldap_add($ldap, $userDn, $entry);
                 $message = 'User created successfully.';
@@ -168,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
             }
         }
     }
+    after_add_user:
 }
 
 // Handle delete user
