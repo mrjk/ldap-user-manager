@@ -7,8 +7,24 @@ function createOrganization($orgData) {
     global $LDAP;
     $ldap = open_ldap_connection();
 
+    // Validate required fields
+    $required = ['o', 'l', 'postalCode', 'c', 'telephoneNumber', 'labeledURI', 'mail', 'creatorDN'];
+    foreach ($required as $field) {
+        if (empty($orgData[$field])) {
+            error_log("createOrganization: Missing required field '$field'.");
+            return [false, "Missing required field: $field"];
+        }
+    }
+
     $orgRDN = ldap_escape($orgData['o'], '', LDAP_ESCAPE_DN);
     $orgDN = "o={$orgRDN}," . $LDAP['org_dn'];
+
+    // Check that parent DN exists
+    $parentSearch = ldap_read($ldap, $LDAP['org_dn'], '(objectClass=*)', ['dn']);
+    if (!$parentSearch) {
+        error_log("createOrganization: Parent DN {$LDAP['org_dn']} does not exist.");
+        return [false, "Parent DN does not exist: {$LDAP['org_dn']}"];
+    }
 
     $orgEntry = [
         'objectClass' => ['top', 'organization', 'locality'],
@@ -33,9 +49,28 @@ function createOrganization($orgData) {
         'member' => [$orgData['creatorDN']]
     ];
 
-    ldap_add($ldap, $orgDN, $orgEntry);
-    ldap_add($ldap, "ou=Users,{$orgDN}", $usersOU);
-    ldap_add($ldap, "cn=OrgAdmins,{$orgDN}", $orgAdminsGroup);
+    $result = ldap_add($ldap, $orgDN, $orgEntry);
+    if (!$result) {
+        $err = ldap_error($ldap);
+        error_log("createOrganization: Failed to add org entry: $err");
+        return [false, "Failed to add organization: $err"];
+    }
+
+    $resultUsers = ldap_add($ldap, "ou=Users,{$orgDN}", $usersOU);
+    if (!$resultUsers) {
+        $err = ldap_error($ldap);
+        error_log("createOrganization: Failed to add Users OU: $err");
+        return [false, "Failed to add Users OU: $err"];
+    }
+
+    $resultAdmins = ldap_add($ldap, "cn=OrgAdmins,{$orgDN}", $orgAdminsGroup);
+    if (!$resultAdmins) {
+        $err = ldap_error($ldap);
+        error_log("createOrganization: Failed to add OrgAdmins group: $err");
+        return [false, "Failed to add OrgAdmins group: $err"];
+    }
+
+    return [true, "Organization created successfully."];
 }
 
 function deleteOrganization($orgName) {

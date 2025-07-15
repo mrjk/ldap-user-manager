@@ -948,7 +948,7 @@ function ldap_delete_account($ldap_connection,$username) {
 
  if (isset($username)) {
 
-  $delete_query = "{$LDAP['account_attribute']}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER) . ",{$LDAP['user_dn']}";
+  $delete_query = "{$LDAP['account_attribute']}=" . ldap_escape(($username === null ? '' : $username), "", LDAP_ESCAPE_FILTER) . ",{$LDAP['user_dn']}";
   $delete = @ ldap_delete($ldap_connection, $delete_query);
 
   if ($delete) {
@@ -1008,7 +1008,7 @@ function ldap_delete_member_from_group($ldap_connection,$group_name,$username) {
   else {
     $rfc2307bis_available = ldap_detect_rfc2307bis($ldap_connection);
 
-    $group_dn = "{$LDAP['group_attribute']}=" . ldap_escape($group_name, "", LDAP_ESCAPE_FILTER) . ",{$LDAP['group_dn']}";
+    $group_dn = "{$LDAP['group_attribute']}=" . ldap_escape(($group_name === null ? '' : $group_name), "", LDAP_ESCAPE_FILTER) . ",{$LDAP['group_dn']}";
 
     if ($LDAP['group_membership_uses_uid'] == FALSE and $username != "") {
       $username = "{$LDAP['account_attribute']}=$username,{$LDAP['user_dn']}";
@@ -1037,7 +1037,7 @@ function ldap_change_password($ldap_connection,$username,$new_password) {
 
  #Find DN of user
 
- $ldap_search_query = "{$LDAP['account_attribute']}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER);
+ $ldap_search_query = "{$LDAP['account_attribute']}=" . ldap_escape(($username === null ? '' : $username), "", LDAP_ESCAPE_FILTER);
  $ldap_search = @ ldap_search( $ldap_connection, $LDAP['user_dn'], $ldap_search_query);
  if ($ldap_search) {
   $result = @ ldap_get_entries($ldap_connection, $ldap_search);

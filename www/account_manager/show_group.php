@@ -171,9 +171,11 @@ if (isset($_POST["update_members"])) {
 
   $updated_membership = array();
 
-  foreach ($_POST['membership'] as $index => $member) {
-    if (is_numeric($index)) {
-     array_push($updated_membership,filter_var($member, FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+  if (isset($_POST['membership']) && is_array($_POST['membership'])) {
+    foreach ($_POST['membership'] as $index => $member) {
+      if (is_numeric($index)) {
+        array_push($updated_membership, filter_var($member, FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+      }
     }
   }
 
