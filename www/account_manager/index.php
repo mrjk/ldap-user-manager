@@ -39,6 +39,7 @@ $people = ldap_get_user_list($ldap_connection);
  </form> 
 <?php if (currentUserIsGlobalAdmin() || currentUserIsMaintainer()): ?>
 <a href="organizations.php" class="btn btn-info mb-3">Manage Organizations</a>
+<a href="manage_roles.php" class="btn btn-warning mb-3">Role Management</a>
 <?php endif; ?>
  <input class="form-control" id="search_input" type="text" placeholder="Search..">
  <table class="table table-striped">

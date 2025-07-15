@@ -32,6 +32,9 @@ function render_submenu() {
       if (function_exists('currentUserIsGlobalAdmin') && function_exists('currentUserIsMaintainer') && (currentUserIsGlobalAdmin() || currentUserIsMaintainer())) {
         $active = (basename($_SERVER['SCRIPT_FILENAME']) == 'organizations.php') ? " class='active'" : "";
         print "<li$active><a href='organizations.php'>Organizations</a></li>\n";
+        // Add Role Management link
+        $active_roles = (basename($_SERVER['SCRIPT_FILENAME']) == 'manage_roles.php') ? " class='active'" : "";
+        print "<li$active_roles><a href='manage_roles.php'>Role Management</a></li>\n";
       }
      ?>
      </ul>

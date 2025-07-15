@@ -94,14 +94,17 @@ function set_passkey_cookie($user_id,$is_admin) {
 
 function login_via_headers() {
 
-  global $IS_ADMIN, $USER_ID, $VALIDATED, $LDAP;
+  global $IS_ADMIN, $USER_ID, $VALIDATED, $LDAP, $currentUserGroups;
   //['admins_group'];
   $USER_ID = $_SERVER['HTTP_REMOTE_USER'];
   $remote_groups = explode(',',$_SERVER['HTTP_REMOTE_GROUPS']);
   $IS_ADMIN = in_array($LDAP['admins_group'],$remote_groups);
   // users are always validated as we assume, that the auth server does this
   $VALIDATED = true;
-
+  // Populate currentUserGroups from LDAP
+  $ldap_connection = open_ldap_connection();
+  $currentUserGroups = ldap_user_group_membership($ldap_connection, $USER_ID);
+  ldap_close($ldap_connection);
 }
 
 
@@ -109,7 +112,7 @@ function login_via_headers() {
 
 function validate_passkey_cookie() {
 
-  global $SESSION_TIMEOUT, $IS_ADMIN, $USER_ID, $VALIDATED, $log_prefix, $SESSION_TIMED_OUT, $SESSION_DEBUG;
+  global $SESSION_TIMEOUT, $IS_ADMIN, $USER_ID, $VALIDATED, $log_prefix, $SESSION_TIMED_OUT, $SESSION_DEBUG, $LDAP, $currentUserGroups;
 
   $this_time=time();
   $VALIDATED = FALSE;
@@ -131,6 +134,10 @@ function validate_passkey_cookie() {
         $USER_ID=$user_id;
         if ($SESSION_DEBUG == TRUE) {  error_log("$log_prefix Setup session: Cookie and session file values match for user {$user_id} - VALIDATED (ADMIN = {$IS_ADMIN})",0); }
         set_passkey_cookie($USER_ID,$IS_ADMIN);
+        // Populate currentUserGroups from LDAP
+        $ldap_connection = open_ldap_connection();
+        $currentUserGroups = ldap_user_group_membership($ldap_connection, $USER_ID);
+        ldap_close($ldap_connection);
       }
       else {
         if ($SESSION_DEBUG == TRUE) {
