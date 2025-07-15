@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_org'])) {
     $postalCode = trim($_POST['postalCode']);
     $country = trim($_POST['c']);
     $phone = trim($_POST['telephoneNumber']);
+    $fax = trim($_POST['facsimileTelephoneNumber'] ?? '');
     $website = trim($_POST['labeledURI']);
     $email = trim($_POST['mail']);
     $creatorDN = $_POST['creatorDN'] ?? 'cn=admin,dc=example,dc=com';
@@ -68,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_org'])) {
             'postalCode' => $postalCode,
             'c' => $country,
             'telephoneNumber' => $phone,
+            'facsimileTelephoneNumber' => $fax,
             'labeledURI' => $website,
             'mail' => $email,
             'creatorDN' => $creatorDN
@@ -470,6 +472,10 @@ if (isset($_GET['edit'])) {
         <div class="form-group">
             <label for="telephoneNumber">Phone</label>
             <input type="text" class="form-control" name="telephoneNumber" id="telephoneNumber">
+        </div>
+        <div class="form-group">
+            <label for="facsimileTelephoneNumber">Fax</label>
+            <input type="text" class="form-control" name="facsimileTelephoneNumber" id="facsimileTelephoneNumber" placeholder="Fax (optional)">
         </div>
         <div class="form-group">
             <label for="labeledURI">Website</label>
