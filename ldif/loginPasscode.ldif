@@ -1,0 +1,15 @@
+dn: cn=loginPasscode,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: loginPasscode
+olcAttributeTypes: ( 1.3.6.1.4.1.4203.666.1.201
+  NAME 'loginPasscode'
+  DESC 'User login passcode (hashed)'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+olcObjectClasses: ( 1.3.6.1.4.1.4203.666.1.202
+  NAME 'loginPasscodeUser'
+  DESC 'User object with optional loginPasscode'
+  SUP inetOrgPerson
+  AUXILIARY
+  MAY ( loginPasscode ) ) 
