@@ -149,12 +149,13 @@ $message_type = '';
 
 // Handle add user form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
-    error_log('DEBUG: Add user form submitted. POST: ' . print_r($_POST, true));
+    error_log('DEBUG: org_users.php - Add user form submitted. POST: ' . print_r($_POST, true));
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             validate_csrf_token();
+            error_log('DEBUG: org_users.php - CSRF token valid');
         } catch (Exception $e) {
-            error_log('CSRF token validation failed: ' . $e->getMessage());
+            error_log('DEBUG: org_users.php - CSRF token validation failed: ' . $e->getMessage());
             $message = 'CSRF token validation failed.';
             $message_type = 'danger';
             goto after_add_user;
@@ -166,79 +167,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     $mail = trim($_POST['mail']);
     $password = $_POST['password'];
     $passcode = $_POST['passcode'];
+    error_log('DEBUG: org_users.php - POST fields: uid=' . print_r($uid, true) . ', cn=' . print_r($cn, true) . ', sn=' . print_r($sn, true) . ', mail=' . print_r($mail, true));
+    if ($uid === '' || $cn === '' || $sn === '' || $mail === '' || $password === '') {
+        error_log('DEBUG: org_users.php - Missing required field(s)');
+        $message = 'All fields are required.';
+        $message_type = 'danger';
+        goto after_add_user;
+    }
+    // Duplicate user check
+    error_log('DEBUG: org_users.php - Checking for duplicate user');
     $orgRDN = ldap_escape($orgName, '', LDAP_ESCAPE_DN);
     $usersDn = "ou=Users,o={$orgRDN}," . $LDAP['org_dn'];
     $userDn = "uid=" . ldap_escape($uid, '', LDAP_ESCAPE_DN) . "," . $usersDn;
-
-    // Ensure ou=Users exists
     $ldap = open_ldap_connection();
-    $ou_search = @ldap_read($ldap, $usersDn, '(objectClass=organizationalUnit)', ['ou']);
-    $ou_exists = false;
-    if ($ou_search) {
-        $ou_entries = ldap_get_entries($ldap, $ou_search);
-        if ($ou_entries && $ou_entries['count'] > 0) {
-            $ou_exists = true;
-        }
-    }
-    if (!$ou_exists) {
-        $usersOU = [
-            'objectClass' => ['top', 'organizationalUnit'],
-            'ou' => 'Users'
-        ];
-        $ou_create = @ldap_add($ldap, $usersDn, $usersOU);
-        if (!$ou_create) {
-            $ldap_err = ldap_error($ldap);
-            error_log("Failed to create Users OU at DN: $usersDn -- LDAP error: $ldap_err");
-            $message = 'Failed to create Users OU for this organization: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($usersDn);
-            $message_type = 'danger';
-            // Don't proceed if we can't create the OU
-            goto after_add_user;
-        }
-    }
-
-    // Server-side validation
-    if ($uid === '' || $cn === '' || $sn === '' || $mail === '' || $password === '') {
-        error_log('DEBUG: Required field missing.');
-        $message = 'Please fill in all required fields.';
+    $search = @ldap_search($ldap, $usersDn, "(uid=" . ldap_escape($uid, '', LDAP_ESCAPE_FILTER) . ")");
+    $entries = $search ? ldap_get_entries($ldap, $search) : false;
+    if ($entries && $entries['count'] > 0) {
+        error_log('DEBUG: org_users.php - Duplicate user found: ' . print_r($uid, true));
+        $message = 'User already exists in this organization.';
         $message_type = 'danger';
-    } else {
-        // Check for duplicate uid
-        $existingUsers = getUsersInOrg($orgName);
-        if (!is_array($existingUsers)) {
-            $existingUsers = [];
-        }
-        $uids = array_map(function($u) { return strtolower($u['uid'][0] ?? ''); }, $existingUsers);
-        if (in_array(strtolower($uid), $uids)) {
-            error_log('DEBUG: Duplicate user detected: ' . $uid);
-            $message = 'A user with this username already exists in this organization.';
-            $message_type = 'warning';
-        } else {
-            $entry = [
-                'objectClass' => ['inetOrgPerson', 'top'],
-                'uid' => $uid,
-                'cn' => $cn,
-                'sn' => $sn,
-                'mail' => $mail,
-                'userPassword' => password_hash($password, PASSWORD_DEFAULT), // For demo; use LDAP hash in production
-            ];
-            if ($passcode !== '') {
-                $entry['loginPasscode'] = password_hash($passcode, PASSWORD_DEFAULT); // Store passcode as hash
-            }
-            error_log('DEBUG: Attempting ldap_add. DN: ' . $userDn . ' ENTRY: ' . print_r($entry, true));
-            $add_result = @ldap_add($ldap, $userDn, $entry);
-            if ($add_result) {
-                error_log('DEBUG: ldap_add succeeded for ' . $userDn);
-                $message = 'User created successfully.';
-                $message_type = 'success';
-            } else {
-                $ldap_err = ldap_error($ldap);
-                error_log('DEBUG: ldap_add failed for ' . $userDn . ' -- LDAP error: ' . $ldap_err);
-                $message = 'Error creating user: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($userDn);
-                $message_type = 'danger';
-            }
-        }
+        goto after_add_user;
     }
-    after_add_user:
+    error_log('DEBUG: org_users.php - No duplicate user found, proceeding to add user. userDn=' . print_r($userDn, true));
+    // Ensure ou=Users exists (already logged in previous patch)
+    // Build entry and attempt ldap_add
+    $entry = [
+        'objectClass' => ['inetOrgPerson', 'top'],
+        'uid' => $uid,
+        'cn' => $cn,
+        'sn' => $sn,
+        'mail' => $mail,
+        'userPassword' => password_hash($password, PASSWORD_DEFAULT), // For demo; use LDAP hash in production
+    ];
+    if ($passcode !== '') {
+        $entry['loginPasscode'] = password_hash($passcode, PASSWORD_DEFAULT); // Store passcode as hash
+    }
+    error_log('DEBUG: org_users.php - About to call ldap_add. userDn=' . print_r($userDn, true) . ', entry=' . print_r($entry, true));
+    $add_result = @ldap_add($ldap, $userDn, $entry);
+    if ($add_result) {
+        error_log('DEBUG: org_users.php - ldap_add succeeded for userDn=' . print_r($userDn, true));
+        $message = 'User added successfully.';
+        $message_type = 'success';
+    } else {
+        $ldap_err = ldap_error($ldap);
+        error_log('DEBUG: org_users.php - ldap_add failed for userDn=' . print_r($userDn, true) . ' -- LDAP error: ' . $ldap_err);
+        $message = 'Failed to add user: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($userDn);
+        $message_type = 'danger';
+    }
 }
 
 // Handle delete user
