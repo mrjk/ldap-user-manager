@@ -216,6 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
     }
 }
 
+after_add_user:
 // Handle delete user
 if (isset($_GET['delete_user'])) {
     $uidToDelete = $_GET['delete_user'];
