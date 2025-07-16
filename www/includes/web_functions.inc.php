@@ -85,7 +85,7 @@ function set_passkey_cookie($user_id,$is_admin) {
   $admin_val = 1;
   $IS_ADMIN = TRUE;
  }
- $filename = preg_replace('/[^a-zA-Z0-9]/','_', $user_id);
+ $filename = preg_replace('/[^a-zA-Z0-9]/','_', $user_id ?? '');
  @ file_put_contents("/tmp/$filename","$passkey:$admin_val:$this_time");
  setcookie('orf_cookie', "$user_id:$passkey", $DEFAULT_COOKIE_OPTIONS);
  $sessto_cookie_opts = $DEFAULT_COOKIE_OPTIONS;
@@ -133,7 +133,7 @@ function validate_passkey_cookie() {
   if (isset($_COOKIE['orf_cookie'])) {
 
     list($user_id,$c_passkey) = explode(":",$_COOKIE['orf_cookie']);
-    $filename = preg_replace('/[^a-zA-Z0-9]/','_', $user_id);
+    $filename = preg_replace('/[^a-zA-Z0-9]/','_', $user_id ?? '');
     $session_file = @ file_get_contents("/tmp/$filename");
     if (!$session_file) {
       if ($SESSION_DEBUG == TRUE) {  error_log("$log_prefix Session: orf_cookie was sent by the client but the session file wasn't found at /tmp/$filename",0); }
@@ -258,7 +258,7 @@ function log_out($method='normal') {
  setcookie('orf_cookie', "", $DEFAULT_COOKIE_OPTIONS);
  setcookie('sessto_cookie', "", $DEFAULT_COOKIE_OPTIONS);
 
- $filename = preg_replace('/[^a-zA-Z0-9]/','_', $USER_ID);
+ $filename = preg_replace('/[^a-zA-Z0-9]/','_', $USER_ID ?? '');
  @ unlink("/tmp/$filename");
 
  if ($method == 'auto') { $options = "?logged_out"; } else { $options = ""; }
@@ -333,7 +333,7 @@ function render_menu() {
      <?php
      foreach ($MODULES as $module => $access) {
 
-      $this_module_name=stripslashes(ucwords(preg_replace('/_/',' ',$module)));
+      $this_module_name=stripslashes(ucwords(preg_replace('/_/',' ', $module ?? '')));
 
       $show_this_module = TRUE;
       if ($VALIDATED == TRUE) {

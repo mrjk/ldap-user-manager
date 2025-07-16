@@ -515,7 +515,7 @@ function ldap_get_group_members($ldap_connection,$group_name,$start=0,$entries=N
   foreach ($result[0][$LDAP['group_membership_attribute']] as $key => $value) {
 
    if ($key !== 'count' and !empty($value)) {
-    $this_member = preg_replace("/^.*?=(.*?),.*/", "$1", $value);
+    $this_member = preg_replace("/^.*?=(.*?),.*/", "$1", $value ?? '');
     array_push($records, $this_member);
     if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix {$value} is a member",0); }
    }

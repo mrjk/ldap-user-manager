@@ -149,8 +149,16 @@ $message_type = '';
 
 // Handle add user form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
+    error_log('DEBUG: Add user form submitted. POST: ' . print_r($_POST, true));
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        validate_csrf_token();
+        try {
+            validate_csrf_token();
+        } catch (Exception $e) {
+            error_log('CSRF token validation failed: ' . $e->getMessage());
+            $message = 'CSRF token validation failed.';
+            $message_type = 'danger';
+            goto after_add_user;
+        }
     }
     $uid = trim($_POST['uid']);
     $cn = trim($_POST['cn']);
@@ -190,6 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
 
     // Server-side validation
     if ($uid === '' || $cn === '' || $sn === '' || $mail === '' || $password === '') {
+        error_log('DEBUG: Required field missing.');
         $message = 'Please fill in all required fields.';
         $message_type = 'danger';
     } else {
@@ -200,6 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
         }
         $uids = array_map(function($u) { return strtolower($u['uid'][0] ?? ''); }, $existingUsers);
         if (in_array(strtolower($uid), $uids)) {
+            error_log('DEBUG: Duplicate user detected: ' . $uid);
             $message = 'A user with this username already exists in this organization.';
             $message_type = 'warning';
         } else {
@@ -214,12 +224,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
             if ($passcode !== '') {
                 $entry['loginPasscode'] = password_hash($passcode, PASSWORD_DEFAULT); // Store passcode as hash
             }
-            try {
-                ldap_add($ldap, $userDn, $entry);
+            error_log('DEBUG: Attempting ldap_add. DN: ' . $userDn . ' ENTRY: ' . print_r($entry, true));
+            $add_result = @ldap_add($ldap, $userDn, $entry);
+            if ($add_result) {
+                error_log('DEBUG: ldap_add succeeded for ' . $userDn);
                 $message = 'User created successfully.';
                 $message_type = 'success';
-            } catch (Exception $e) {
-                $message = 'Error creating user: ' . htmlspecialchars($e->getMessage());
+            } else {
+                $ldap_err = ldap_error($ldap);
+                error_log('DEBUG: ldap_add failed for ' . $userDn . ' -- LDAP error: ' . $ldap_err);
+                $message = 'Error creating user: ' . htmlspecialchars($ldap_err) . '<br>DN: ' . htmlspecialchars($userDn);
                 $message_type = 'danger';
             }
         }

@@ -37,8 +37,8 @@ if ($ldap_search) {
           $mime_type = 'application/octet-stream';
         }
         // Sanitize filename (allow only safe chars)
-        $safe_resource = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_resource);
-        $safe_attribute = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_attribute);
+        $safe_resource = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_resource ?? '');
+        $safe_attribute = preg_replace('/[^a-zA-Z0-9._-]/', '_', $this_attribute ?? '');
         $filename = $safe_resource . '.' . $safe_attribute;
         header("Content-Type: $mime_type");
         header("Cache-Control: no-cache, private");
