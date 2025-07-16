@@ -393,6 +393,7 @@ $orgManagerDns = getOrgManagerDns($orgName);
             <label for="passcode">Passcode (optional)</label>
             <input type="text" class="form-control" name="passcode" id="passcode">
         </div>
+        <input type="hidden" name="add_user" value="1">
         <button type="submit" name="add_user" class="btn btn-primary" id="add_user_btn">Add User</button>
         <span id="add_user_spinner" style="display:none;"><span class="spinner-border spinner-border-sm"></span> Adding...</span>
     </form>
