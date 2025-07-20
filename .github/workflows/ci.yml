@@ -29,6 +29,15 @@ jobs:
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
           
+
+
+      - name: Temporary Dump
+        run: |
+          echo REPO_NAME=$REPO_NAME
+          echo REPO_OWNER=${{ vars.DOCKERHUB_USERNAME }}
+          echo FINAL ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
+
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -85,20 +94,12 @@ jobs:
           if-no-files-found: error
           retention-days: 1
           
-
-      - name: Export digest
-        run: |
-          echo REPO_NAME=$REPO_NAME
-          echo REPO_OWNER=${{ vars.DOCKERHUB_USERNAME }}
-          echo FINAL ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
-
       - name: Sync Dockerhub README
-        uses: ms-jpq/sync-dockerhub-readme@v1
+        uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
-          readme: "./README.md"
 
   merge:
     environment: CICD
