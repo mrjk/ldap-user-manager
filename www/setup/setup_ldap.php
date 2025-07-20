@@ -16,19 +16,6 @@ $ldap_connection = open_ldap_connection();
 $no_errors = TRUE;
 $show_create_admin_button = FALSE;
 
-# Recursive helper
-function loop_over_children($dn) {
-
-  $parts = array_reverse(explode(",", $dn));
-  $ret = array();
-  $current = array();
-  foreach ($parts as $part) {
-    error_log("SETOUUUUTTTPPP  " . $part , 0);
-    array_push($current, $part);
-    array_push($ret, implode(",", array_reverse($current)));
-  }
-  return $ret;
-}
 
 function build_tree($ldap_connection, $part) {
   global $li_warn, $li_fail, $li_good;
@@ -69,14 +56,14 @@ if (isset($_POST['fix_problems'])) {
 <?php
 
  if (isset($_POST['setup_group_ou'])) {
-  foreach (loop_over_children($LDAP['group_dn']) as $part) {
+  foreach (loop_over_children($LDAP['new_group_dn']) as $part) {
     build_tree($ldap_connection, $part);
   }
  }
 
 
  if (isset($_POST['setup_user_ou'])) {
-  foreach (loop_over_children($LDAP['user_dn']) as $part) {
+  foreach (loop_over_children($LDAP['new_user_dn']) as $part) {
     build_tree($ldap_connection, $part);
   }
  }

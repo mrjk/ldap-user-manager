@@ -98,10 +98,10 @@ else {
        <ul class="list-group">
 <?php
 
-$group_filter = "(&(objectclass=organizationalUnit)({$LDAP['group_cn']}))";
+$group_filter = "(&(objectclass=organizationalUnit)({$LDAP['new_group_cn']}))";
 $searchFailed = false;
 try {
-       @$ldap_group_search = ldap_search($ldap_connection, "{$LDAP['group_dn']}", $group_filter);
+       @$ldap_group_search = ldap_search($ldap_connection, "{$LDAP['new_group_dn']}", $group_filter);
        $group_result = ldap_get_entries($ldap_connection, $ldap_group_search);
 } catch (TypeError $e) {
        $searchFailed = true;
@@ -109,8 +109,8 @@ try {
 
 if ($searchFailed || $group_result['count'] != 1) {
 
- print "$li_fail The group OU (<strong>{$LDAP['group_dn']}</strong>) doesn't exist. ";
- print "<a href='#' data-toggle='popover' title='{$LDAP['group_dn']}' data-content='";
+ print "$li_fail The group OU (<strong>{$LDAP['new_group_dn']}</strong>) doesn't exist. ";
+ print "<a href='#' data-toggle='popover' title='{$LDAP['new_group_dn']}' data-content='";
  print "This is the Organizational Unit (OU) that the groups are stored under.";
  print "'>What's this?</a>";
  print "<label class='pull-right'><input type='checkbox' name='setup_group_ou' class='pull-right' checked>Create?&nbsp;</label>";
@@ -119,14 +119,13 @@ if ($searchFailed || $group_result['count'] != 1) {
 
 }
 else {
- print "$li_good The group OU (<strong>{$LDAP['group_dn']}</strong>) is present.</li>";
+ print "$li_good The group OU (<strong>{$LDAP['new_group_dn']}</strong>) is present.</li>";
 }
 
-
-$user_filter  = "(&(objectclass=organizationalUnit)({$LDAP['user_cn']}))";
+$user_filter  = "(&(objectclass=organizationalUnit)({$LDAP['new_user_cn']}))";
 $searchFailed = false;
 try {
-       @$ldap_user_search = ldap_search($ldap_connection, "{$LDAP['user_dn']}", $user_filter);
+       @$ldap_user_search = ldap_search($ldap_connection, "{$LDAP['new_user_dn']}", $user_filter);
        $user_result = ldap_get_entries($ldap_connection, $ldap_user_search);
 } catch (TypeError $e) {
        $searchFailed = true;
@@ -134,8 +133,8 @@ try {
 
 if ($searchFailed || $user_result['count'] != 1) {
 
- print "$li_fail The user OU (<strong>{$LDAP['user_dn']}</strong>) doesn't exist. ";
- print "<a href='#' data-toggle='popover' title='{$LDAP['user_dn']}' data-content='";
+ print "$li_fail The user OU (<strong>{$LDAP['new_user_dn']}</strong>) doesn't exist. ";
+ print "<a href='#' data-toggle='popover' title='{$LDAP['new_user_dn']}' data-content='";
  print "This is the Organisational Unit (OU) that the user accounts are stored under.";
  print "'>What's this?</a>";
  print "<label class='pull-right'><input type='checkbox' name='setup_user_ou' class='pull-right' checked>Create?&nbsp;</label>";
@@ -144,7 +143,7 @@ if ($searchFailed || $user_result['count'] != 1) {
 
 }
 else {
- print "$li_good The user OU (<strong>{$LDAP['user_dn']}</strong>) is present.</li>";
+ print "$li_good The user OU (<strong>{$LDAP['new_user_dn']}</strong>) is present.</li>";
 }
 
 ?>
