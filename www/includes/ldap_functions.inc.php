@@ -186,33 +186,37 @@ function generate_salt($length) {
 
 }
 
-##################################
+
+#################################
 
 function loop_over_children($dn) {
-
   $parts = array_reverse(explode(",", $dn));
   $ret = array();
   $current = array();
   foreach ($parts as $part) {
-    // error_log("SETOUUUUTTTPPP  " . $part , 0);
     array_push($current, $part);
-    // array_push($ret, implode(",", array_reverse($current)));
+    array_push($ret, implode(",", array_reverse($current)));
   }
-  return $current;
+  return $ret;
 }
 
 function get_subgroup_name($dn) {
-
-  $ret = array();
-  foreach (loop_over_children($dn) as $part) {
-    if (substr( $part, 0, 3 ) === "ou="){
-      $grp_name = explode("=", $part, 2 )[1];
-      array_push($ret, $grp_name);
-      // array_push($ret, $part);
+  // Remove everything after first dc=
+  $dn = preg_replace('/,dc=.*$/', '', $dn);
+  
+  // Split into parts and filter for ou= entries
+  $parts = array();
+  foreach(explode(',', $dn) as $part) {
+    if (strpos($part, 'ou=') === 0) {
+      // Remove the ou= prefix
+      $name = substr($part, 3);
+      array_push($parts, $name);
     }
   }
-  $ret = implode("/", $ret);
-  return $ret;
+
+  // Reverse array and join with /
+  $parts = array_reverse($parts);
+  return implode('/', $parts);
 }
 
 function get_parent_dn($dn){
@@ -399,8 +403,10 @@ function ldap_get_user_list($ldap_connection,$start=0,$entries=NULL,$sort="asc",
     }
 
     $dn = $record['dn'];
-    $sub_group = get_subgroup_name($dn) ;
-    array_push($sub_groups, $sub_group);
+    $sub_group = get_subgroup_name($dn);
+    if (!in_array($sub_group, $sub_groups)) {
+      $sub_groups[] = $sub_group;
+    }
     $add_these["group_name"] = $sub_group;
     $add_these["dn"] = $dn;
     $add_these["uid"] = $record['uid'][0];
@@ -465,17 +471,19 @@ function ldap_get_highest_id($ldap_connection,$type="uid") {
  }
  else {
 
-  error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is determined by searching through all the LDAP records.",0);
-
   $ldap_search = @ ldap_search($ldap_connection, $record_base_dn, $record_filter, array($record_attribute));
-  $result = ldap_get_entries($ldap_connection, $ldap_search);
-
-  foreach ($result as $record) {
-   if (isset($record[$record_attribute][0])) {
-    if ($record[$record_attribute][0] > $this_id) { $this_id = $record[$record_attribute][0]; }
-   }
+  if ($ldap_search != false) {
+    error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is determined by searching through all the LDAP records.",0);
+    $result = ldap_get_entries($ldap_connection, $ldap_search);
+    
+    foreach ($result as $record) {
+     if (isset($record[$record_attribute][0])) {
+      if ($record[$record_attribute][0] > $this_id) { $this_id = $record[$record_attribute][0]; }
+     }
+    }
+  } else {
+    error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is defaulted to min $this_id.",0);
   }
-
  }
 
  return($this_id);
@@ -766,7 +774,7 @@ function ldap_new_group($ldap_connection,$group_name,$initial_member="",$extra_a
 
    if ($result['count'] == 0) {
 
-     if ($LDAP['group_membership_uses_uid'] == FALSE and $initial_member != "") { $initial_member = "{$LDAP['account_attribute']}=$initial_member,{$LDAP['user_dn']}"; }
+     if ($LDAP['group_membership_uses_uid'] == FALSE and $initial_member != "") { $initial_member = ldap_user_dn($ldap_connection, $initial_member); }
 
      $new_group_array=array( 'objectClass' => $LDAP['group_objectclasses'],
                              'cn' => $new_group,
