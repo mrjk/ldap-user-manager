@@ -111,6 +111,9 @@
 
  $LDAP['new_group_dn'] = "ou={$LDAP['new_group_ou']},{$LDAP['base_dn']}";
  $LDAP['new_user_dn'] = "ou={$LDAP['new_user_ou']},{$LDAP['base_dn']}";
+ $LDAP['new_group_cn'] = substr($LDAP['new_group_ou'], 0, strpos($LDAP['new_group_ou'], ','));
+ $LDAP['new_user_cn'] = substr($LDAP['new_user_ou'], 0, strpos($LDAP['new_user_ou'], ','));
+
 
  $LDAP['group_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['group_dn']);
  $LDAP['user_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['user_dn']);
