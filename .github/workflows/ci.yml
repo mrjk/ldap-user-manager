@@ -86,7 +86,7 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+          repository: ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name.split('/')[1] }}
           readme: "./README.md"
 
   merge:
