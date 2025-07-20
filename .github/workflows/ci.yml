@@ -25,6 +25,10 @@ jobs:
           - linux/amd64
           - linux/arm64
     steps:
+      - name: Set ENV variables
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/}" >> $GITHUB_ENV
+          
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -86,7 +90,7 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: ${{ vars.DOCKERHUB_USERNAME }}/${{ github.event.repository.name.split('/')[1] }}
+          repository: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
           readme: "./README.md"
 
   merge:
