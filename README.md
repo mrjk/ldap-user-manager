@@ -3,7 +3,7 @@
 This is a PHP LDAP account manager; a web-based GUI interface which allows you to quickly populate a new LDAP directory and easily manage user accounts and groups.  It also has a self-service password change module.   
 It's designed to work with OpenLDAP and to be run as a container.  It complements OpenLDAP containers such as [*osixia/openldap*](https://hub.docker.com/r/osixia/openldap/).
 
-This project is forked from [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager), because there are many open issues and unmerged PR. Since I needed to have those fix, there is this fork. Eventually this project would disapear and be remerged back to original project if the original authors reappears at some points.
+This project lives in [mrjk/ldap-user-manager](https://github.com/mrjk/ldap-user-manager/), but it is orignally forked from [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager), because there are many open issues and unmerged PRs. Since I needed to have those fix, there is this fork. Eventually this project would disapear and be remerged back to original project if the original authors reappears at some points.
 
 ***
 
@@ -22,8 +22,13 @@ Base features:
 
 Fork features:
  
- * Original code [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager)
  * Basic management of sub-ou to store users and groups.
+
+Assets:
+
+ * Github project [mrjk/ldap-user-manager](https://github.com/mrjk/ldap-user-manager/)
+ * Docker image [mrjk78/ldap-user-manager](https://hub.docker.com/r/mrjk78/ldap-user-manager)
+ * Original code [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager)
 
 ***
 
