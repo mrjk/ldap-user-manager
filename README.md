@@ -3,9 +3,13 @@
 This is a PHP LDAP account manager; a web-based GUI interface which allows you to quickly populate a new LDAP directory and easily manage user accounts and groups.  It also has a self-service password change module.   
 It's designed to work with OpenLDAP and to be run as a container.  It complements OpenLDAP containers such as [*osixia/openldap*](https://hub.docker.com/r/osixia/openldap/).
 
+This project is forked from [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager), because there are many open issues and unmerged PR. Since I needed to have those fix, there is this fork. Eventually this project would disapear and be remerged back to original project if the original authors reappears at some points.
+
 ***
 
 ## Features
+
+Base features:
 
  * Setup wizard: this will create the necessary structure to allow you to add users and groups and will set up an initial admin user that can log into the user manager.
  * Group creation and management.
@@ -15,6 +19,11 @@ It's designed to work with OpenLDAP and to be run as a container.  It complement
  * Password strength indicator.
  * Self-service password change: non-admin users can log in to change their password.
  * An optional form for people to request accounts (request emails are sent to an administrator).
+
+Fork features:
+ 
+ * Original code [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager)
+ * Basic management of sub-ou to store users and groups.
 
 ***
 
@@ -139,9 +148,9 @@ These settings should only be changed if you're trying to make the user manager 
    
 * `FORCE_RFC2307BIS` (default: *FALSE*): Set to *TRUE* if the auto-detection is failing to spot that the RFC2307BIS schema is available.  When *FALSE* the user manager will use auto-detection.  See [Using the RFC2307BIS schema](#using-the-rfc2307bis-schema) for more information.
    
-* `LDAP_NEW_USER_OU` (default: *people*):  The name of the OU used to store user accounts (without the base DN appended). Support children.
+* `LDAP_NEW_USER_OU` (default: *people*):  The name of the OU used to create user accounts (without the base DN appended). `LDAP_NEW_USER_OU` must be equal or below `LDAP_USER_OU`. Support children, if not set, `LDAP_USER_OU` is used as default.
    
-* `LDAP_NEW_GROUP_OU` (default: *groups*):  The name of the OU used to store groups (without the base DN appended). Support children.
+* `LDAP_NEW_GROUP_OU` (default: *groups*):  The name of the OU used to create groups (without the base DN appended). `LDAP_NEW_GROUP_OU` must be equal or under `LDAP_GROUP_OU`. Support children, if not set, `LDAP_GROUP_OU` is used as default.
 
 #### User account creation settings
 
@@ -434,3 +443,169 @@ docker run \
              wheelybird/ldap-user-manager:latest
 ```
 Now go to https://localhost/setup - the password is `change_me` (unless you changed it).  As this will use self-signed certificates you might need to tell your browser to ignore certificate warnings.
+
+## Docker compose setup
+
+Ther is an example of simple docker compose deployment, with openldap and phpldapadmin:
+
+```yaml
+networks:
+  ldap_network:
+    
+services:
+
+  # Main openldap service
+  openldap:
+    image: docker.io/tiredofit/openldap:2.6 # Openldap 2.6 from tiredofit
+    # image: osixia/openldap:latest # Openldap 2.4 from osixia
+    environment:
+      ADMIN_PASS: admin
+      BASE_DN: dc=example,dc=org
+      CONFIG_PASS: config
+      CONTAINER_ENABLE_MONITORING: "FALSE"
+      CONTAINER_NAME: openldap
+      DEBUG_MODE: "TRUE"
+      DOMAIN: example.org
+      ENABLE_BACKUP: "FALSE"
+      ENABLE_READONLY_USER: "TRUE"
+      ENABLE_REPLICATION: "FALSE"
+      ENABLE_TLS: "FALSE"
+      HOSTNAME: ldap.example.org
+      LOG_LEVEL: "256"
+      ORGANIZATION: Example Org
+      READONLY_USER_PASS: readonly
+      READONLY_USER_USER: readonly
+      REMOVE_CONFIG_AFTER_SETUP: "false"
+      SCHEMA_TYPE: rfc2307bis
+      TIMEZONE: America/Toronto
+    hostname: ldap.example.org
+    networks:
+      ldap_network: 
+    ports:
+      - "389:389"
+    restart: unless-stopped
+    volumes:
+      - "$PWD/bootstrap_schema:/assets/slapd/config/bootstrap/schema/custom"
+      - "$PWD/bootstrap_ldif:/assets/slapd/config/bootstrap/ldif/custom"
+
+  # Debbugging web interface
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    depends_on: openldap
+    environment:
+      PHPLDAPADMIN_HTTPS: "false"
+      PHPLDAPADMIN_LDAP_HOSTS: openldap
+    networks:
+      ldap_network:
+    ports:
+      - "8090:80"
+    restart: unless-stopped
+
+  # Install of User Ldap Manager
+  lum:
+    image: mrjk78/ldap-user-manager:latest
+    environment:
+      ACCEPT_WEAK_PASSWORDS: "True"
+      EMAIL_DOMAIN: mail.example.org
+      LDAP_ADMIN_BIND_DN: cn=admin,dc=example,dc=org
+      LDAP_ADMIN_BIND_PWD: admin
+      LDAP_ADMINS_GROUP: admins
+      LDAP_BASE_DN: dc=example,dc=org
+      LDAP_DEBUG: "TRUE"
+      LDAP_GROUP_OU: groups
+      LDAP_IGNORE_CERT_ERRORS: "true"
+      LDAP_NEW_GROUP_OU: users,ou=groups
+      LDAP_NEW_USER_OU: users,ou=accounts
+      LDAP_REQUIRE_STARTTLS: "FALSE"
+      LDAP_URI: ldap://openldap
+      LDAP_USER_OU: users,ou=accounts
+      NO_HTTPS: "true"
+      ORGANISATION_NAME: LDAP Simple
+      SERVER_HOSTNAME: ldap.example.org:8081
+      USERNAME_FORMAT: '{first_name}'
+      USERNAME_REGEX: ^[a-z][a-zA-Z0-9._-]{2,32}$$
+    networks:
+      ldap_network:
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: /home/jez/volumes/data/prj/mrjk/public/misc_apps/ldap-user-manager/tests_26/../www
+        target: /opt/ldap_user_manager
+        bind:
+          create_host_path: true
+
+```
+
+### Deploy different instances
+
+Since lum can be configured to work on different DN, it become possible to run multiple instances of lum, for exemple one to manage users, and another one to manage services.
+
+```yaml
+# Common config to make docker compose DRY
+x-lum-env: &LUM_BASE_ENV
+  LDAP_URI: "ldap://openldap"
+  LDAP_BASE_DN: "$app_ldap_base_dn"
+  LDAP_REQUIRE_STARTTLS: "FALSE"
+  LDAP_ADMIN_BIND_DN: "cn=admin,$app_ldap_base_dn"
+  LDAP_ADMIN_BIND_PWD: "admin"
+  LDAP_IGNORE_CERT_ERRORS: "true"
+  ORGANISATION_NAME: "$app_ldap_org_name"
+
+  EMAIL_DOMAIN: "mail.example.org"
+  NO_HTTPS: "true"
+  LDAP_ADMINS_GROUP: admins
+  ACCEPT_WEAK_PASSWORDS: "True"
+  FORCE_RFC2307BIS: "True"
+  USERNAME_REGEX: '^[a-z][a-zA-Z0-9._-]{2,32}$'
+  USERNAME_FORMAT: '{first_name}'
+
+services:
+  lum-user:
+
+    image: mrjk78/ldap-user-manager:latest
+    restart: unless-stopped
+    networks:
+      ldap_network:
+    ports:
+      - "8080:80"                            # First instance use port 8080
+    environment:
+      << : *LUM_BASE_ENV
+      SERVER_HOSTNAME: "127.0.0.0:8080"
+      ORGANISATION_NAME: LDAP Simple
+
+      LDAP_NEW_USER_OU: "users,ou=accounts"  # New users will be created on this DN
+      LDAP_USER_OU: "users,ou=accounts"      # All user accounts under this dn are visible
+      LDAP_NEW_GROUP_OU: "people,ou=groups"  # New groups will be created on this DN
+      LDAP_GROUP_OU: "groups"                # All user groups under this dn are visible
+
+  lum-svc:
+    image: mrjk78/ldap-user-manager:latest
+    restart: unless-stopped
+    networks:
+      ldap_network:
+    ports:
+      - "8081:80"                               # First instance use port 8081
+    environment:
+      << : *LUM_BASE_ENV
+      SERVER_HOSTNAME: "127.0.0.0:8081"
+      ORGANISATION_NAME: LDAP Services
+
+      LDAP_NEW_USER_OU: "services,ou=accounts"  # New users will be created on this DN
+      LDAP_USER_OU: "accounts"                  # All user accounts under this dn are visible
+      LDAP_NEW_GROUP_OU: "services,ou=groups"   # New groups will be created on this DN
+      LDAP_GROUP_OU: "groups"                   # All user groups under this dn are visible
+```
+
+### Develop and test with docker compose
+
+To test and hack code directly in container, you can mount the project source code into
+the html directory of the container:
+```yaml
+services:
+  lum:
+    volumes:
+      - $PWD/www:/opt/ldap_user_manager/
+```
+Once this mount is applied, code changes are directly propagated into the container.
