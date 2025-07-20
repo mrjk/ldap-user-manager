@@ -81,6 +81,7 @@
  $LDAP['admin_bind_pwd'] = getenv('LDAP_ADMIN_BIND_PWD');
  $LDAP['connection_type'] = "plain";
  $LDAP['require_starttls'] = ((strcasecmp(getenv('LDAP_REQUIRE_STARTTLS'),'TRUE') == 0) ? TRUE : FALSE);
+ $LDAP['ignore_starttls_warning'] = ((strcasecmp(getenv('LDAP_IGNORE_STARTTLS_WARNING'),'TRUE') == 0) ? TRUE : FALSE);
  $LDAP['ignore_cert_errors'] = ((strcasecmp(getenv('LDAP_IGNORE_CERT_ERRORS'),'TRUE') == 0) ? TRUE : FALSE);
  $LDAP['rfc2307bis_check_run'] = FALSE;
 

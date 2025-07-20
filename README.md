@@ -120,8 +120,10 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
    
 * `LDAP_GROUP_OU` (default: *groups*):  The name of the OU used to lookup groups (without the base DN appended). You can use children with `ou` instead, with the syntax: `groups,ou=SUB_OU1,ou=SUB_OU2`.
    
-* `LDAP_REQUIRE_STARTTLS` (default: *TRUE*):  If *TRUE* then a TLS connection is required for this interface to work.  If set to *FALSE* then the interface will work without STARTTLS, but a warning will be displayed on the page.
+* `LDAP_REQUIRE_STARTTLS` (default: *TRUE*):  If *TRUE* then a TLS connection is required for this interface to work.  If set to *FALSE* then the interface will work without STARTTLS, but a warning will be displayed on the page, (unless `LDAP_IGNORE_STARTTLS_WARNING` is *TRUE*).
    
+* `LDAP_IGNORE_STARTTLS_WARNING` (default: *FALSE*):  If *TRUE* then the unsecure TLS connection warning is hidden.
+
 * `LDAP_IGNORE_CERT_ERRORS` (default: *FALSE*): If *TRUE* then problems with the certificate presented by the LDAP server will be ignored (for example FQDN mismatches).  Use this if your LDAP server is using a self-signed certificate and you don't have a CA certificate for it or you're connecting to a pool of different servers via round-robin DNS.
    
 * `LDAP_TLS_CACERT` (no default): If you need to use a specific CA certificate for TLS connections to the LDAP server (when `LDAP_REQUIRE_STARTTLS` is set) then assign the contents of the CA certificate to this variable.  e.g. `-e LDAP_TLS_CACERT="$(</path/to/ca.crt)"` (ensure you're using quotes or you'll get an "invalid reference format: repository name must be lowercase" error).  Alternatively you can bind-mount a certificate into the container and use `LDAP_TLS_CACERT_FILE` to specify the path to the file.
