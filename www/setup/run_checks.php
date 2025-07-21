@@ -6,6 +6,9 @@ include_once "web_functions.inc.php";
 include_once "ldap_functions.inc.php";
 include_once "module_functions.inc.php";
 
+# Check if setup is disabled
+check_setup_disabled();
+
 validate_setup_cookie();
 set_page_access("setup");
 

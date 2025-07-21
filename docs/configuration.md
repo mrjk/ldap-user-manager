@@ -42,6 +42,8 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
    
 * `SESSION_TIMEOUT` (default: *10 minutes*):  How long before an idle session will be timed out.
 
+* `SETUP_DISABLED` (default: *FALSE*):  If set to *TRUE*, the setup functionality will be completely disabled. Users will not be able to access `/setup`, `/setup/run_checks.php`, `/setup/setup_ldap.php`, or any other setup-related pages. This is useful for production environments where you want to prevent accidental setup changes.
+
 #### LDAP settings
 
 * `LDAP_USER_OU` (default: *people*):  The name of the OU used to lookup user accounts (without the base DN appended). You can use children with `ou` instead, with the syntax: `people,ou=SUB_OU1,ou=SUB_OU2`.

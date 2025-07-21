@@ -95,6 +95,8 @@ The setup utility will create the user and account trees, records that store the
 
 Once you've set up the initial administrator account you can log into the user manager with it and start creating other accounts.  Your username to log in with is (by default) whatever you set **System username** to.  See [Account names](#account-names) below if you changed the default by setting `LDAP_ACCOUNT_ATTRIBUTE`.
 
+> **Security Note**: For production environments, consider setting `SETUP_DISABLED=TRUE` after initial setup to prevent accidental changes to the LDAP structure.
+
 ***
 
 See [usage documentation](docs/usage.md)

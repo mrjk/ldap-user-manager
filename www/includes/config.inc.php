@@ -147,6 +147,9 @@
 
  $REMOTE_HTTP_HEADERS_LOGIN = ((strcasecmp(getenv('REMOTE_HTTP_HEADERS_LOGIN'),'TRUE') == 0) ? TRUE : FALSE);
 
+ # Setup access control
+ $SETUP_DISABLED = ((strcasecmp(getenv('SETUP_DISABLED'),'TRUE') == 0) ? TRUE : FALSE);
+
  # Sending email
 
  $SMTP['host'] = getenv('SMTP_HOSTNAME');

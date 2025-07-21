@@ -17,6 +17,9 @@ if ( isset($_POST['setup_admin_account']) ) {
 
   $admin_setup = TRUE;
 
+  # Check if setup is disabled
+  check_setup_disabled();
+
   validate_setup_cookie();
   set_page_access("setup");
 
