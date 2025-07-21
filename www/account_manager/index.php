@@ -54,8 +54,22 @@ $people = $people_data["records"];
 
  <?php
 foreach ($sub_groups as $sub_group){
-?>
 
+  $first_user = null;
+  foreach ($people as $user) {
+    if (isset($user['group_name']) && $user['group_name'] == $sub_group) {
+      $first_user = $user;
+      break;
+    }
+  }
+  $group_suffix = "";
+  if ($first_user['managed'] == TRUE) {
+    $group_suffix = '<span class="label label-success">managed</span>';
+  } else {
+    $group_suffix = '<span class="label label-warning">unmanaged</span>';
+  }
+
+?>
 
  <table class="table table-striped table-fixed">
   <thead>
@@ -63,7 +77,9 @@ foreach ($sub_groups as $sub_group){
      <th class="col-md-3"><?php print $sub_group; ?>
      </th>
      <th class="col-md-3"></th>
-     <th class="col-md-6" ></th>
+     <th class="col-lg-6 text-right" style="padding-right: 0px;" >
+     <?php print $group_suffix; ?>
+     </th>
    </tr>
   </thead>
  <tbody id="userlist">
@@ -91,14 +107,8 @@ foreach ($people as $record ){ //=> $attribs){
     $group_membership = ldap_user_group_membership($ldap_connection,$account_identifier);
     if (isset($record['mail'])) { $this_mail = $record['mail']; } else { $this_mail = ""; }
 
-    if ($record['managed'] == TRUE) {
-      print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_user.php?account_identifier=" . 
-      urlencode($account_identifier) .
-      "'>$account_identifier</a></td>\n";
-    } else {
-      print " <tr>\n   <td>$account_identifier</td>\n";
-    }
-
+    print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_user.php?account_identifier=" .
+    urlencode($account_identifier) . "'>$account_identifier</a></td>\n";
     print "   <td>$this_mail</td>\n"; 
     print "   <td>" . implode(", ", $group_membership) . "</td>\n";
     print " </tr>\n";

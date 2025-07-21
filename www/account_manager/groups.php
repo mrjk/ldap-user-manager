@@ -69,13 +69,29 @@ render_js_username_check();
 
  <?php
 foreach ($sub_groups as $sub_group){
+
+  $first_group = null;
+  foreach ($groups as $group) {
+    if (isset($group['managed']) && $group['group_name'] == $sub_group) {
+      $first_group = $group;
+      break;
+    }
+  }
+  $group_suffix = "";
+  if ($first_group['managed'] == TRUE) {
+    $group_suffix = '<span class="label label-success">managed</span>';
+    // $group_suffix = '';
+  } else {
+    $group_suffix = '<span class="label label-warning">unmanaged</span>';
+  }
+
 ?>
 
  <table class="table table-striped">
   <thead>
-   <tr>
+   <tr">
      <th class="col-md-6"><?php print $sub_group; ?></th>
-     <th class="col-md-6"></th>
+     <th class="col-md-6 text-right" style="padding-right: 0px;"><?php print $group_suffix;?></th>
    </tr>
   </thead>
  <tbody id="grouplist">
@@ -95,14 +111,9 @@ foreach ($sub_groups as $sub_group){
     if ($sub_group == $record["group_name"] ){
       $group = $record["name"] ;
       $desc = $record["description"] ;
-      $managed = ( get_parent_dn($record["dn"]) == $LDAP['new_group_dn'] ) ? TRUE: FALSE;
 
       print " <tr>\n";
-      if ($managed == TRUE) {
-        print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
-      } else {
-        print " <td>$group</td>\n";
-      }
+      print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
       print " <td>" . $desc . "</td>\n";
       print " </tr>\n";
     }

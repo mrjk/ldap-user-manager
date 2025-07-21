@@ -560,6 +560,7 @@ function ldap_get_group_datalist($ldap_connection,$start=0,$entries=NULL,$sort="
       "dn" => $dn,
       "group_name" => $sub_group,
       "description" => $desc,
+      "managed" => ( get_parent_dn($dn) == $LDAP['new_group_dn'] ) ? TRUE: FALSE,
     ));
    }
   }
