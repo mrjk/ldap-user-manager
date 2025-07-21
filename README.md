@@ -32,24 +32,37 @@ Assets:
  * Github project [mrjk/ldap-user-manager](https://github.com/mrjk/ldap-user-manager/)
  * Docker image [mrjk78/ldap-user-manager](https://hub.docker.com/r/mrjk78/ldap-user-manager)
  * Original code [wheelybird/ldap-user-manager](https://github.com/wheelybird/ldap-user-manager)
+ * Documentation [docs/](https://github.com/mrjk/ldap-user-manager/docs/)
 
 ***
 
 ## Screenshots
 
-**Edit accounts**:   
+With `blue` modern theme.
 
-![account_overview](https://user-images.githubusercontent.com/17613683/59344255-9c692480-8d05-11e9-9207-051291bafd91.png)
+**Edit accounts**:
 
-
-**Manage group membership**:   
-
-![group_membership](https://user-images.githubusercontent.com/17613683/59344247-97a47080-8d05-11e9-8606-0bcc40471458.png)
+<img src="docs/screenshots/user_edit.png" alt="account_overview" style="max-height: 200px;"/>
 
 
-**Self-service password change**:   
+**Manage group membership**:
 
-![self_service_password_change](https://user-images.githubusercontent.com/17613683/59344258-9ffcab80-8d05-11e9-9dc2-27dfd373fcc8.png)
+<img src="docs/screenshots/group_view.png" alt="group_membership" style="max-height: 200px;"/>
+
+
+**Self-service password change**:
+
+<img src="docs/screenshots/password_change.png" alt="self_service_password_change" style="max-height: 200px;"/>
+
+
+**Modern theme (anthracite is default)**:
+| | |
+|---|---|
+| anthracite<br><img src="docs/screenshots/theme_anthracite.png" alt="modern theme" style="max-width: 200px;"/> | green<br><img src="docs/screenshots/theme_green.png" alt="classic theme" style="max-width: 200px;"/> |
+| orange<br><img src="docs/screenshots/theme_orange.png" alt="dark theme" style="max-width: 200px;"/> | blue<br><img src="docs/screenshots/theme_blue.png" alt="light theme" style="max-width: 200px;"/> |
+| yellow<br><img src="docs/screenshots/theme_yellow.png" alt="minimal theme" style="max-width: 200px;"/> | |
+
+
 
 ***
 
