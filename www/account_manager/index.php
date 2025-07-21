@@ -30,16 +30,27 @@ if (isset($_POST['delete_user'])) {
 }
 
 $people_data = ldap_get_user_datalist($ldap_connection);
-
 $sub_groups = $people_data["groups"];
 $people = $people_data["records"];
-
 ?>
+
 <div class="container">
- <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
-  <button type="button" class="btn btn-light"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></button>  &nbsp; <button id="add_group" class="btn btn-default" type="submit">New user</button>
- </form> 
- <input class="form-control" id="search_input" type="text" placeholder="Search..">
+
+  <div class="row">
+    <div class="col-md-2">
+      <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
+        <button id="add_group" class="btn btn-primary" type="submit">New user</button>
+      </form> 
+    </div>
+
+    <div class="col-md-8">
+      <input class="form-control" id="search_input" type="text" placeholder="Filter...">
+    </div>
+
+    <div class="col-sm-2 text-right">
+      <span class="label label-info"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></span>  
+    </div>
+  </div>
 
  <?php
 foreach ($sub_groups as $sub_group){
