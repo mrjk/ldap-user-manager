@@ -12,7 +12,7 @@ function render_submenu() {
                        'groups' => 'groups.php'
                      );
   ?>
-   <nav class="navbar navbar-default">
+   <nav id="menu-sub" class="navbar navbar-default">
     <div class="container-fluid">
      <ul class="nav navbar-nav">
       <?php

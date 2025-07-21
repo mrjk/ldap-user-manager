@@ -299,7 +299,7 @@ function render_menu() {
  global $SITE_NAME, $MODULES, $THIS_MODULE, $VALIDATED, $IS_ADMIN, $USER_ID, $SERVER_PATH, $CUSTOM_LOGO;
 
  ?>
-  <nav class="navbar navbar-default">
+  <nav id="menu-main" class="navbar navbar-default">
    <div class="container-fluid">
    <div class="navbar-header"><?php
       if ($CUSTOM_LOGO) echo '<span class="navbar-brand"><img src="'.$CUSTOM_LOGO.'" class="logo" alt="logo"></span>'
