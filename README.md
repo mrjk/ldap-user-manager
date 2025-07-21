@@ -56,10 +56,12 @@ With `blue` modern theme.
 
 
 **Modern theme (anthracite is default)**:
-|---|---|
-| anthracite<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_anthracite.png" alt="modern theme" style="max-width: 200px;"/> | green<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_green.png" alt="classic theme" style="max-width: 200px;"/> |
-| orange<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_orange.png" alt="dark theme" style="max-width: 200px;"/> | blue<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_blue.png" alt="light theme" style="max-width: 200px;"/> |
-| yellow<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_yellow.png" alt="minimal theme" style="max-width: 200px;"/> | |
+
+| | |
+| -- | -- |
+| anthracite<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_anthracite.png" alt="modern theme" style="max-width: 200px;"/> | green<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_green.png" alt="classic theme" style="max-width: 200px;"/> |
+| orange<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_orange.png" alt="dark theme" style="max-width: 200px;"/> | blue<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_blue.png" alt="light theme" style="max-width: 200px;"/> |
+| yellow<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_yellow.png" alt="minimal theme" style="max-width: 200px;"/> | |
 
 
 
