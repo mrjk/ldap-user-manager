@@ -101,7 +101,7 @@ else {
        <ul class="list-group">
 <?php
 
-$group_filter = "(&(objectclass=organizationalUnit)({$LDAP['new_group_cn']}))";
+$group_filter = "(&(objectclass=organizationalUnit)(ou={$LDAP['new_group_cn']}))";
 $searchFailed = false;
 try {
        @$ldap_group_search = ldap_search($ldap_connection, "{$LDAP['new_group_dn']}", $group_filter);
@@ -125,7 +125,7 @@ else {
  print "$li_good The group OU (<strong>{$LDAP['new_group_dn']}</strong>) is present.</li>";
 }
 
-$user_filter  = "(&(objectclass=organizationalUnit)({$LDAP['new_user_cn']}))";
+$user_filter  = "(&(objectclass=organizationalUnit)(ou={$LDAP['new_user_cn']}))";
 $searchFailed = false;
 try {
        @$ldap_user_search = ldap_search($ldap_connection, "{$LDAP['new_user_dn']}", $user_filter);
