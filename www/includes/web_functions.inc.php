@@ -247,7 +247,7 @@ function log_out($method='normal') {
 
 function render_header($title="",$menu=TRUE) {
 
- global $SITE_NAME, $IS_ADMIN, $SENT_HEADERS, $SERVER_PATH, $CUSTOM_STYLES, $SITE_THEME_NAME;
+ global $SITE_NAME, $IS_ADMIN, $SENT_HEADERS, $SERVER_PATH, $CUSTOM_STYLES, $SITE_THEME_NAME, $THEME_VARIANT, $THEME_VARIANTS;
 
  if (empty($title)) { $title = $SITE_NAME; }
 
@@ -261,6 +261,9 @@ function render_header($title="",$menu=TRUE) {
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>bootstrap/css/bootstrap.min.css">
  <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>themes/<?php print $SITE_THEME_NAME; ?>.css">
+ <?php if ($SITE_THEME_NAME == 'modern') { ?>
+ <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>themes/<?php print $SITE_THEME_NAME; ?>-<?php print $THEME_VARIANT; ?>.css">
+ <?php } ?>
  <?php if ($CUSTOM_STYLES) echo '<link rel="stylesheet" href="'.$CUSTOM_STYLES.'">' ?>
  <script src="<?php print $SERVER_PATH; ?>js/jquery-3.6.0.min.js"></script>
  <script src="<?php print $SERVER_PATH; ?>bootstrap/js/bootstrap.min.js"></script>

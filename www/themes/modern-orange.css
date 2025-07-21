@@ -1,0 +1,281 @@
+/* Modern Theme - Orange Variant */
+/* Color overrides for orange theme */
+
+/* Menu Styling */
+#menu-main {
+    background-color: #ea580c;
+    border-bottom: 2px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+#menu-sub {
+    background-color: #ea580c;
+    border-bottom: 2px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+/* Navbar Styling */
+.navbar-default {
+    background-color: #ea580c;
+    border-color: #fb923c;
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav > li > a {
+    color: #f8fafc;
+}
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+    color: #f8fafc;
+}
+
+.navbar-default .navbar-text {
+    color: #f8fafc;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #f8fafc;
+    background-color: #fb923c;
+    border: none;
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+    background-color: #fb923c;
+    color: #f8fafc;
+    border: none;
+}
+
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+    background-color: #fb923c;
+    color: #f8fafc;
+    border-color: #fb923c;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #f8fafc;
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: #fb923c;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #f8fafc;
+}
+
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+    border-color: #fb923c;
+}
+
+.navbar-default .navbar-link {
+    color: #f8fafc;
+}
+
+.navbar-default .navbar-link:hover {
+    color: #f8fafc;
+}
+
+.navbar-default .btn-link {
+    color: #f8fafc;
+}
+
+.navbar-default .btn-link:hover,
+.navbar-default .btn-link:focus {
+    color: #f8fafc;
+}
+
+/* Dropdown Menu Styling */
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ea580c;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #fb923c;
+    background-color: #f8fafc;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #f8fafc;
+    background-color: #fb923c;
+}
+
+/* Panel Styling */
+.panel {
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.panel-default {
+    border: none;
+    border-radius: 0;
+}
+
+.panel-default > .panel-heading {
+    background-color: #ea580c;
+    border: none;
+    color: #f8fafc;
+    border-radius: 0;
+}
+
+.panel-group .panel {
+    border-radius: 0;
+}
+
+.panel-group .panel-heading {
+    border-radius: 0;
+}
+
+.panel-group .panel-title > a {
+    color: #f8fafc;
+}
+
+.panel-group .panel-title > a:hover,
+.panel-group .panel-title > a:focus {
+    color: #f8fafc;
+    text-decoration: none;
+}
+
+/* List Group Styling */
+.list-group , #member_of_list{
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.list-group-item {
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.list-group-item:first-child {
+    border-radius: 0;
+    border-top: 1px solid #d1d5db;
+}
+
+.list-group-item:last-child {
+    border-radius: 0;
+    border-bottom: 1px solid #d1d5db;
+}
+
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+    background-color: #ea580c;
+    border-color: #fb923c;
+    color: #f8fafc;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 0;
+}
+
+.btn-primary {
+    background-color: #ea580c;
+    border-color: #fb923c;
+    color: #f8fafc;
+    border-radius: 0;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #fb923c;
+    border-color: #fb923c;
+    color: #f8fafc;
+    border-radius: 0;
+}
+
+.btn-default {
+    border-radius: 0;
+}
+
+.btn-success {
+    border-radius: 0;
+}
+
+.btn-info {
+    border-radius: 0;
+}
+
+.btn-warning {
+    border-radius: 0;
+}
+
+.btn-danger {
+    border-radius: 0;
+}
+
+/* Form Control Styling */
+.form-control {
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.form-control:focus {
+    border-color: #fb923c;
+    box-shadow: 0 0 0 0.2rem rgba(234, 88, 12, 0.25);
+}
+
+.input-group-addon {
+    border-radius: 0;
+}
+
+.input-group .form-control:first-child {
+    border-radius: 0;
+}
+
+.input-group .form-control:last-child {
+    border-radius: 0;
+}
+
+/* Label Styling */
+.label-primary {
+    background-color: #ea580c;
+    color: #f8fafc;
+    border-radius: 0;
+}
+
+.label {
+    border-radius: 0;
+}
+
+/* Well Styling */
+.well {
+    border-radius: 0;
+    border: none;
+    background-color: #f8fafc;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 0;
+    border: none;
+}
+
+/* Link Styling */
+a {
+    color: #fb923c;
+}
+
+a:hover,
+a:focus {
+    color: #fdba74;
+} 

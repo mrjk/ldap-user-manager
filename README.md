@@ -23,6 +23,8 @@ Base features:
 Fork features:
  
  * Basic management of sub-ou to store users and groups.
+ * Improved modern theme that improve UX.
+ * Provides 5 themes, to differenciate multiple instances.
 
 Assets:
 
@@ -97,12 +99,6 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
 * `LDAP_ADMIN_BIND_PWD`: The password for `LDAP_ADMIN_BIND_DN`
    
 * `LDAP_ADMINS_GROUP`: The name of the group used to define accounts that can use this tool to manage LDAP accounts.  e.g. `admins`
-
-### Optional:
-
-* `SITE_THEME_NAME`: The theme to use for the web interface. Available options: `classic` (default), `modern`. e.g. `SITE_THEME_NAME=modern`
-
-### Optional:
 
 
 #### Web server settings
@@ -195,6 +191,11 @@ These settings should only be changed if you're trying to make the user manager 
 * `SHOW_POSIX_ATTRIBUTES` (default: *FALSE*):  If set to `TRUE` this show extra attributes for **posixAccount** and **posixGroup** in the account and group forms.  Leave this set to `FALSE` if you don't use LDAP accounts to log into servers etc., as it makes the interface much simpler.   The Posix values are still set in the background using the default values.  This setting doesn't hide any Posix attributes set via `LDAP_ACCOUNT_ADDITIONAL_ATTRIBUTES` or `LDAP_GROUP_ADDITIONAL_ATTRIBUTES`.
 
 * `REMOTE_HTTP_HEADERS_LOGIN`(default: *FALSE*) Enables session managment from an external service like Authelia. _This setting will compromise your security if you're not using an Auth-Proxy in front of this application_.
+
+* `SITE_THEME_NAME`: The theme to use for the web interface. Available options: `classic`, `modern` (default). e.g. `SITE_THEME_NAME=modern`
+
+* `THEME_VARIANT`: The color variant for the modern theme. Available options: `anthracite` (default), `orange`, `blue`, `anthracite`, `green`, `yellow`. Only applies when `SITE_THEME_NAME=modern`. e.g. `THEME_VARIANT=orange`
+
 
 
 #### Email sending settings
