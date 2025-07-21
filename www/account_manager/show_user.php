@@ -440,12 +440,12 @@ if ($ldap_search) {
 
 
 <div class="container">
- <div class="col-sm-8 col-md-offset-2">
+ <div class="col-sm-12 col-md-offset-0">
 
   <div class="panel panel-default">
     <div class="panel-heading clearfix">
      <span class="panel-title pull-left"><h3><?php print $account_identifier; ?></h3></span>
-     <button class="btn btn-warning pull-right align-self-end" style="margin-top: auto;" onclick="show_delete_user_button();" <?php if ($account_identifier == $USER_ID) { print "disabled"; }?>>Delete account</button>
+     <button class="btn btn-danger pull-right align-self-end" style="margin-top: auto;" onclick="show_delete_user_button();" <?php if ($account_identifier == $USER_ID) { print "disabled"; }?>>Delete account</button>
      <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/index.php" method="post"><input type="hidden" name="delete_user" value="<?php print urlencode($account_identifier); ?>"><button class="btn btn-danger pull-right invisible" id="delete_user">Confirm deletion</button></form>
     </div>
     <ul class="list-group">
@@ -474,15 +474,24 @@ if ($ldap_search) {
        <div class="col-sm-6">
         <input type="password" class="form-control" id="password" name="password" onkeyup="back_to_hidden('password','confirm'); check_if_we_should_enable_sending_email();">
        </div>
+
        <div class="col-sm-1">
         <input type="button" class="btn btn-sm" id="password_generator" onclick="random_password(); check_if_we_should_enable_sending_email();" value="Generate password">
-       </div>
+        </div>
       </div>
 
       <div class="form-group" id="confirm_div">
        <label for="confirm" class="col-sm-3 control-label">Confirm</label>
        <div class="col-sm-6">
         <input type="password" class="form-control" id="confirm" name="password_match" onkeyup="check_passwords_match()">
+       </div>
+      </div>
+
+      <div class="form-group" id="progress_div">
+       <div class="col-sm-6 col-sm-offset-3">
+        <div class="progress" style="margin-bottom: 0;">
+          <div id="StrengthProgressBar" class="progress-bar"></div>
+        </div>
        </div>
       </div>
 
@@ -497,14 +506,11 @@ if ($ldap_search) {
 
 
       <div class="form-group">
-        <p align='center'><button type="submit" class="btn btn-default">Update account details</button></p>
+        <p align='center'><button type="submit" class="btn btn-primary">Update account details</button></p>
       </div>
 
     </form>
 
-    <div class="progress">
-     <div id="StrengthProgressBar" class="progress-bar"></div>
-    </div>
 
     <div><p align='center'><sup>&ast;</sup>The account identifier.  Changing this will change the full <strong>DN</strong>.</p></div>
 
@@ -556,7 +562,7 @@ if ($ldap_search) {
           </div>
          </div>
 
-         <div class="list-arrows col-md-1 text-center">
+         <div class="list-arrows col-md-2 text-center">
           <button class="btn btn-default btn-sm move-left">
            <span class="glyphicon glyphicon-chevron-left"></span>
           </button>
@@ -567,7 +573,7 @@ if ($ldap_search) {
            <input type="hidden" name="update_member_of">
            <input type="hidden" name="account_identifier" value="<?php print $account_identifier; ?>">
           </form>
-          <button id="submit_members" class="btn btn-info" disabled type="submit" onclick="update_form_with_groups()">Save</button>
+          <button id="submit_members" class="btn btn-primary" disabled type="submit" onclick="update_form_with_groups()">Save</button>
          </div>
 
          <div class="dual-list list-right col-md-5">

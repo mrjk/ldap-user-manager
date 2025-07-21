@@ -49,19 +49,20 @@ render_js_username_check();
 <div class="container">
 
  <div class="row">
-    <div class="col-md-2">
+    <div class="col-md-4 form-inline">
       <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/show_group.php" method="post">
-        <input type="hidden" name="new_group">
         <button id="show_new_group" class="btn btn-primary" type="button" onclick="show_new_group_form();">New group</button>
+        <input type="hidden" name="new_group">
+        <input type="text" class="form-control invisible" name="group_name" id="group_name" placeholder="Group name" onkeyup="check_entity_name_validity(document.getElementById('group_name').value,'new_group_div');"><button id="add_group" class="form-control btn btn-primary btn-sm invisible" type="submit">Add</button>
       </form>
     </div>
 
-    <div class="col-md-8">
+    <div class="col-md-4">
       <input class="form-control" id="search_input" type="text" placeholder="Filter...">
     </div>
 
-    <div class="col-sm-2 text-right">
-      <span class="label label-info"><?php print count($groups);?> group<?php if (count($groups) != 1) { print "s"; }?></span>
+    <div class="col-sm-4 text-right">
+      <span class="label label-primary"><?php print count($groups);?> group<?php if (count($groups) != 1) { print "s"; }?></span>
     </div>
   </div>
 

@@ -37,18 +37,18 @@ $people = $people_data["records"];
 <div class="container">
 
   <div class="row">
-    <div class="col-md-2">
+    <div class="col-md-4">
       <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
         <button id="add_group" class="btn btn-primary" type="submit">New user</button>
       </form> 
     </div>
 
-    <div class="col-md-8">
+    <div class="col-md-4">
       <input class="form-control" id="search_input" type="text" placeholder="Filter...">
     </div>
 
-    <div class="col-sm-2 text-right">
-      <span class="label label-info"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></span>  
+    <div class="col-sm-4 text-right">
+      <span class="label label-primary"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></span>  
     </div>
   </div>
 
