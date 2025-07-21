@@ -95,8 +95,14 @@ foreach ($sub_groups as $sub_group){
     if ($sub_group == $record["group_name"] ){
       $group = $record["name"] ;
       $desc = $record["description"] ;
+      $managed = ( get_parent_dn($record["dn"]) == $LDAP['new_group_dn'] ) ? TRUE: FALSE;
+
       print " <tr>\n";
-      print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
+      if ($managed == TRUE) {
+        print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
+      } else {
+        print " <td>$group</td>\n";
+      }
       print " <td>" . $desc . "</td>\n";
       print " </tr>\n";
     }
