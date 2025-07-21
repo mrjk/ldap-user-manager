@@ -35,41 +35,63 @@ $groups = $groups_data["records"];
 $sub_groups = $groups_data["groups"];
 
 render_js_username_check();
-
 ?>
+
 <script type="text/javascript">
-
- function show_new_group_form() {
-
-  group_form = document.getElementById('group_name');
-  group_submit = document.getElementById('add_group');
-  group_form.classList.replace('invisible','visible');
-  group_submit.classList.replace('invisible','visible');
-
-
- }
-
+  function show_new_group_form() {
+    group_form = document.getElementById('group_name');
+    group_submit = document.getElementById('add_group');
+    group_form.classList.replace('invisible','visible');
+    group_submit.classList.replace('invisible','visible');
+  }
 </script>
+
 <div class="container">
 
- <div class="form-inline" id="new_group_div">
-  <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/show_group.php" method="post">
-   <input type="hidden" name="new_group">
-   <button type="button" class="btn btn-light"><?php print count($groups);?> group<?php if (count($groups) != 1) { print "s"; }?></button>  &nbsp;  <button id="show_new_group" class="form-control btn btn-default" type="button" onclick="show_new_group_form();">New group</button>
-   <input type="text" class="form-control invisible" name="group_name" id="group_name" placeholder="Group name" onkeyup="check_entity_name_validity(document.getElementById('group_name').value,'new_group_div');"><button id="add_group" class="form-control btn btn-primary btn-sm invisible" type="submit">Add</button>
-  </form>
- </div>
- <input class="form-control" id="search_input" type="text" placeholder="Search..">
+ <div class="row">
+    <div class="col-md-4 form-inline">
+      <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/show_group.php" method="post">
+        <button id="show_new_group" class="btn btn-primary" type="button" onclick="show_new_group_form();">New group</button>
+        <input type="hidden" name="new_group">
+        <input type="text" class="form-control invisible" name="group_name" id="group_name" placeholder="Group name" onkeyup="check_entity_name_validity(document.getElementById('group_name').value,'new_group_div');"><button id="add_group" class="form-control btn btn-primary btn-sm invisible" type="submit">Add</button>
+      </form>
+    </div>
+
+    <div class="col-md-4">
+      <input class="form-control" id="search_input" type="text" placeholder="Filter...">
+    </div>
+
+    <div class="col-sm-4 text-right">
+      <span class="label label-primary"><?php print count($groups);?> group<?php if (count($groups) != 1) { print "s"; }?></span>
+    </div>
+  </div>
+
 
  <?php
 foreach ($sub_groups as $sub_group){
+
+  $first_group = null;
+  foreach ($groups as $group) {
+    if (isset($group['managed']) && $group['group_name'] == $sub_group) {
+      $first_group = $group;
+      break;
+    }
+  }
+  $group_suffix = "";
+  if ($first_group['managed'] == TRUE) {
+    $group_suffix = '<span class="label label-success">managed</span>';
+    // $group_suffix = '';
+  } else {
+    $group_suffix = '<span class="label label-warning">unmanaged</span>';
+  }
+
 ?>
 
  <table class="table table-striped">
   <thead>
-   <tr>
+   <tr">
      <th class="col-md-6"><?php print $sub_group; ?></th>
-     <th class="col-md-6"></th>
+     <th class="col-md-6 text-right" style="padding-right: 0px;"><?php print $group_suffix;?></th>
    </tr>
   </thead>
  <tbody id="grouplist">
@@ -89,6 +111,7 @@ foreach ($sub_groups as $sub_group){
     if ($sub_group == $record["group_name"] ){
       $group = $record["name"] ;
       $desc = $record["description"] ;
+
       print " <tr>\n";
       print " <td><a href='{$THIS_MODULE_PATH}/show_group.php?group_name=" . urlencode($group) . "'>$group</a></td>\n";
       print " <td>" . $desc . "</td>\n";

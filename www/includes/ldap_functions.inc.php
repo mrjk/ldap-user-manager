@@ -32,7 +32,9 @@ function open_ldap_connection($ldap_bind=TRUE) {
    }
    else {
     if ($SENT_HEADERS == TRUE and !preg_match('/^ldap:\/\/localhost(:[0-9]+)?$/', $LDAP['uri']) and !preg_match('/^ldap:\/\/127\.0\.0\.([0-9]+)(:[0-9]+)$/', $LDAP['uri'])) {
-      print "<div style='position: fixed;bottom: 0px;width: 100%;height: 20px;border-bottom:solid 20px yellow;'>WARNING: Insecure LDAP connection to {$LDAP['uri']}</div>";
+      if ($LDAP['ignore_starttls_warning'] == FALSE) {
+        print "<div style='position: fixed;bottom: 0px;width: 100%;height: 20px;border-bottom:solid 20px yellow;'>WARNING: Insecure LDAP connection to {$LDAP['uri']}</div>";
+      }
     }
     ldap_close($ldap_connection);
     $ldap_connection = @ ldap_connect($LDAP['uri']);
@@ -89,6 +91,12 @@ function ldap_auth_username($ldap_connection, $username, $password) {
  # If the binding succeeds, return the DN.
 
  global $log_prefix, $LDAP, $SITE_LOGIN_LDAP_ATTRIBUTE, $LDAP_DEBUG;
+
+ # Ensure username is not null or empty
+ if (empty($username)) {
+  error_log("$log_prefix Empty username provided to ldap_auth_username");
+  return FALSE;
+ }
 
  $ldap_search_query="{$SITE_LOGIN_LDAP_ATTRIBUTE}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER);
  if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Running LDAP search for: $ldap_search_query"); }
@@ -186,33 +194,37 @@ function generate_salt($length) {
 
 }
 
-##################################
+
+#################################
 
 function loop_over_children($dn) {
-
   $parts = array_reverse(explode(",", $dn));
   $ret = array();
   $current = array();
   foreach ($parts as $part) {
-    // error_log("SETOUUUUTTTPPP  " . $part , 0);
     array_push($current, $part);
-    // array_push($ret, implode(",", array_reverse($current)));
+    array_push($ret, implode(",", array_reverse($current)));
   }
-  return $current;
+  return $ret;
 }
 
 function get_subgroup_name($dn) {
-
-  $ret = array();
-  foreach (loop_over_children($dn) as $part) {
-    if (substr( $part, 0, 3 ) === "ou="){
-      $grp_name = explode("=", $part, 2 )[1];
-      array_push($ret, $grp_name);
-      // array_push($ret, $part);
+  // Remove everything after first dc=
+  $dn = preg_replace('/,dc=.*$/', '', $dn);
+  
+  // Split into parts and filter for ou= entries
+  $parts = array();
+  foreach(explode(',', $dn) as $part) {
+    if (strpos($part, 'ou=') === 0) {
+      // Remove the ou= prefix
+      $name = substr($part, 3);
+      array_push($parts, $name);
     }
   }
-  $ret = implode("/", $ret);
-  return $ret;
+
+  // Reverse array and join with /
+  $parts = array_reverse($parts);
+  return implode('/', $parts);
 }
 
 function get_parent_dn($dn){
@@ -399,11 +411,16 @@ function ldap_get_user_list($ldap_connection,$start=0,$entries=NULL,$sort="asc",
     }
 
     $dn = $record['dn'];
-    $sub_group = get_subgroup_name($dn) ;
-    array_push($sub_groups, $sub_group);
+    $sub_group = get_subgroup_name($dn);
+    if (!in_array($sub_group, $sub_groups)) {
+      $sub_groups[] = $sub_group;
+    }
     $add_these["group_name"] = $sub_group;
     $add_these["dn"] = $dn;
     $add_these["uid"] = $record['uid'][0];
+
+    $parent_dn = get_parent_dn($dn);
+    $add_these["managed"] = ( $parent_dn == $LDAP['new_user_dn'] ) ? TRUE: FALSE;
 
     $records[$record[$sort_key][0]] = $add_these; 
    }
@@ -465,17 +482,19 @@ function ldap_get_highest_id($ldap_connection,$type="uid") {
  }
  else {
 
-  error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is determined by searching through all the LDAP records.",0);
-
   $ldap_search = @ ldap_search($ldap_connection, $record_base_dn, $record_filter, array($record_attribute));
-  $result = ldap_get_entries($ldap_connection, $ldap_search);
-
-  foreach ($result as $record) {
-   if (isset($record[$record_attribute][0])) {
-    if ($record[$record_attribute][0] > $this_id) { $this_id = $record[$record_attribute][0]; }
-   }
+  if ($ldap_search != false) {
+    error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is determined by searching through all the LDAP records.",0);
+    $result = ldap_get_entries($ldap_connection, $ldap_search);
+    
+    foreach ($result as $record) {
+     if (isset($record[$record_attribute][0])) {
+      if ($record[$record_attribute][0] > $this_id) { $this_id = $record[$record_attribute][0]; }
+     }
+    }
+  } else {
+    error_log("$log_prefix cn=lastGID doesn't exist so the highest $type is defaulted to min $this_id.",0);
   }
-
  }
 
  return($this_id);
@@ -541,6 +560,7 @@ function ldap_get_group_datalist($ldap_connection,$start=0,$entries=NULL,$sort="
       "dn" => $dn,
       "group_name" => $sub_group,
       "description" => $desc,
+      "managed" => ( get_parent_dn($dn) == $LDAP['new_group_dn'] ) ? TRUE: FALSE,
     ));
    }
   }
@@ -629,6 +649,13 @@ function ldap_get_group_members($ldap_connection,$group_name,$start=0,$entries=N
 function ldap_user_dn($ldap_connection,$username) {
 
   global $log_prefix, $LDAP, $LDAP_DEBUG;
+  
+  # Ensure username is not null or empty
+  if (empty($username)) {
+   error_log("$log_prefix Empty username provided to ldap_user_dn");
+   return FALSE;
+  }
+  
   $old_username=$username;
 
   $ldap_search_query = "{$LDAP['account_attribute']}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER);
@@ -655,6 +682,13 @@ function ldap_user_dn($ldap_connection,$username) {
 function ldap_group_dn($ldap_connection,$group) {
 
   global $log_prefix, $LDAP, $LDAP_DEBUG;
+  
+  # Ensure group is not null or empty
+  if (empty($group)) {
+   error_log("$log_prefix Empty group provided to ldap_group_dn");
+   return FALSE;
+  }
+  
   $old_group=$group;
 
   $group = ldap_escape($group, "", LDAP_ESCAPE_FILTER);
@@ -691,6 +725,12 @@ function ldap_group_dn($ldap_connection,$group) {
 function ldap_is_group_member($ldap_connection,$group_name,$username) {
 
  global $log_prefix, $LDAP, $LDAP_DEBUG;
+
+ # Ensure group_name and username are not null or empty
+ if (empty($group_name) || empty($username)) {
+  error_log("$log_prefix Empty group_name or username provided to ldap_is_group_member");
+  return FALSE;
+ }
 
  $rfc2307bis_available = ldap_detect_rfc2307bis($ldap_connection);
 
@@ -766,7 +806,7 @@ function ldap_new_group($ldap_connection,$group_name,$initial_member="",$extra_a
 
    if ($result['count'] == 0) {
 
-     if ($LDAP['group_membership_uses_uid'] == FALSE and $initial_member != "") { $initial_member = "{$LDAP['account_attribute']}=$initial_member,{$LDAP['user_dn']}"; }
+     if ($LDAP['group_membership_uses_uid'] == FALSE and $initial_member != "") { $initial_member = ldap_user_dn($ldap_connection, $initial_member); }
 
      $new_group_array=array( 'objectClass' => $LDAP['group_objectclasses'],
                              'cn' => $new_group,

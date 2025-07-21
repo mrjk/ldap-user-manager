@@ -420,7 +420,7 @@ ldap_close($ldap_connection);
 
         <div class="panel-heading clearfix">
           <h3 class="panel-title pull-left" style="padding-top: 7.5px;"><?php print $group_cn; ?><?php if ($group_cn == $LDAP["admins_group"]) { print " <sup>(admin group)</sup>" ; } ?></h3>
-          <button class="btn btn-warning pull-right" onclick="show_delete_group_button();" <?php if ($group_cn == $LDAP["admins_group"]) { print "disabled"; } ?>>Delete group</button>
+          <button class="btn btn-danger pull-right" onclick="show_delete_group_button();" <?php if ($group_cn == $LDAP["admins_group"]) { print "disabled"; } ?>>Delete group</button>
           <form action="<?php print "{$THIS_MODULE_PATH}"; ?>/groups.php" method="post" enctype="multipart/form-data"><input type="hidden" name="delete_group" value="<?php print $group_cn; ?>"><button class="btn btn-danger pull-right invisible" id="delete_group">Confirm deletion</button></form>
         </div>
 
@@ -460,7 +460,7 @@ ldap_close($ldap_connection);
                 </ul>
               </div>
             </div>
-            <div class="list-arrows col-md-1 text-center">
+            <div class="list-arrows col-md-2 text-center">
               <button class="btn btn-default btn-sm move-left">
                 <span class="glyphicon glyphicon-chevron-left"></span>
               </button>
@@ -471,7 +471,7 @@ ldap_close($ldap_connection);
                 <input type="hidden" name="update_members">
                 <input type="hidden" name="group_name" value="<?php print urlencode($group_cn); ?>">
                 <?php if ($new_group == TRUE) { ?><input type="hidden" name="initialise_group"><?php } ?>
-                <button id="submit_members" class="btn btn-info" <?php if (count($group_members)==0) print 'disabled'; ?> type="submit" onclick="update_form_with_users()">Save</button>
+                <button id="submit_members" class="btn btn-primary" <?php if (count($group_members)==0) print 'disabled'; ?> type="submit" onclick="update_form_with_users()">Save</button>
             </div>
 
             <div class="dual-list list-right col-md-5">
@@ -532,7 +532,7 @@ if (count($attribute_map) > 0) { ?>
 
             <div class="form-group">
               <p align="center">
-              <input id="submit_attributes" class="btn btn-info" 
+              <input id="submit_attributes" class="btn btn-primary"
               <?php if (count($group_members)==0) print 'disabled'; ?> 
               type="submit" tabindex="<?php print $tabindex; ?>" name="action_submit_attributes" value="Save attributes"
               onclick="update_form_with_users()"

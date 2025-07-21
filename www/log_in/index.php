@@ -21,8 +21,17 @@ if (isset($_GET['logged_out'])) {
 
 if (isset($_POST["user_id"]) and isset($_POST["password"])) {
 
+ // Validate that username and password are not empty
+ $user_id = trim($_POST["user_id"]);
+ $password = $_POST["password"];
+ 
+ if (empty($user_id) || empty($password)) {
+  header("Location: //{$_SERVER['HTTP_HOST']}{$THIS_MODULE_PATH}/index.php?invalid\n\n");
+  exit();
+ }
+
  $ldap_connection = open_ldap_connection();
- $account_id = ldap_auth_username($ldap_connection,$_POST["user_id"],$_POST["password"]);
+ $account_id = ldap_auth_username($ldap_connection,$user_id,$password);
  $is_admin = ldap_is_group_member($ldap_connection,$LDAP['admins_group'],$account_id);
 
  ldap_close($ldap_connection);
@@ -79,14 +88,14 @@ else {
     <div class="form-group">
      <label for="username" class="col-sm-4 control-label"><?php print $SITE_LOGIN_FIELD_LABEL; ?></label>
      <div class="col-sm-6">
-      <input type="text" class="form-control" id="user_id" name="user_id">
+      <input type="text" class="form-control" id="user_id" name="user_id" required>
      </div>
     </div>
 
     <div class="form-group">
      <label for="password" class="col-sm-4 control-label">Password</label>
      <div class="col-sm-6">
-      <input type="password" class="form-control" id="confirm" name="password">
+      <input type="password" class="form-control" id="confirm" name="password" required>
      </div>
     </div>
 

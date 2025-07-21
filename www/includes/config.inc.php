@@ -81,6 +81,7 @@
  $LDAP['admin_bind_pwd'] = getenv('LDAP_ADMIN_BIND_PWD');
  $LDAP['connection_type'] = "plain";
  $LDAP['require_starttls'] = ((strcasecmp(getenv('LDAP_REQUIRE_STARTTLS'),'TRUE') == 0) ? TRUE : FALSE);
+ $LDAP['ignore_starttls_warning'] = ((strcasecmp(getenv('LDAP_IGNORE_STARTTLS_WARNING'),'TRUE') == 0) ? TRUE : FALSE);
  $LDAP['ignore_cert_errors'] = ((strcasecmp(getenv('LDAP_IGNORE_CERT_ERRORS'),'TRUE') == 0) ? TRUE : FALSE);
  $LDAP['rfc2307bis_check_run'] = FALSE;
 
@@ -111,6 +112,9 @@
 
  $LDAP['new_group_dn'] = "ou={$LDAP['new_group_ou']},{$LDAP['base_dn']}";
  $LDAP['new_user_dn'] = "ou={$LDAP['new_user_ou']},{$LDAP['base_dn']}";
+ $LDAP['new_group_cn'] = substr($LDAP['new_group_ou'], 0, strpos($LDAP['new_group_ou'], ','));
+ $LDAP['new_user_cn'] = substr($LDAP['new_user_ou'], 0, strpos($LDAP['new_user_ou'], ','));
+
 
  $LDAP['group_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['group_dn']);
  $LDAP['user_cn'] = preg_replace('/^([^,]*)(,.*)$/', '$1', $LDAP['user_dn']);
@@ -127,6 +131,10 @@
  $ORGANISATION_NAME = (getenv('ORGANISATION_NAME') ? getenv('ORGANISATION_NAME') : 'LDAP');
  $SITE_NAME = (getenv('SITE_NAME') ? getenv('SITE_NAME') : "$ORGANISATION_NAME user manager");
 
+ # Theme and variant configuration
+ $SITE_THEME_NAME = (getenv('SITE_THEME_NAME') ? getenv('SITE_THEME_NAME') : 'modern');
+ $THEME_VARIANT = (getenv('THEME_VARIANT') ? getenv('THEME_VARIANT') : 'anthracite');
+
  $SITE_LOGIN_LDAP_ATTRIBUTE = (getenv('SITE_LOGIN_LDAP_ATTRIBUTE') ? getenv('SITE_LOGIN_LDAP_ATTRIBUTE') : $LDAP['account_attribute'] );
  $SITE_LOGIN_FIELD_LABEL = (getenv('SITE_LOGIN_FIELD_LABEL') ? getenv('SITE_LOGIN_FIELD_LABEL') : "Username" );
  
@@ -138,6 +146,9 @@
  $NO_HTTPS = ((strcasecmp(getenv('NO_HTTPS'),'TRUE') == 0) ? TRUE : FALSE);
 
  $REMOTE_HTTP_HEADERS_LOGIN = ((strcasecmp(getenv('REMOTE_HTTP_HEADERS_LOGIN'),'TRUE') == 0) ? TRUE : FALSE);
+
+ # Setup access control
+ $SETUP_DISABLED = ((strcasecmp(getenv('SETUP_DISABLED'),'TRUE') == 0) ? TRUE : FALSE);
 
  # Sending email
 
@@ -182,6 +193,10 @@
 
  $CUSTOM_LOGO = (getenv('CUSTOM_LOGO') ? getenv('CUSTOM_LOGO') : FALSE);
  $CUSTOM_STYLES = (getenv('CUSTOM_STYLES') ? getenv('CUSTOM_STYLES') : FALSE);
+
+  # Site links configuration
+ $SITE_LINKS_USERS = (getenv('SITE_LINKS_USERS') ? getenv('SITE_LINKS_USERS') : '');
+ $SITE_LINKS_ADMIN = (getenv('SITE_LINKS_ADMIN') ? getenv('SITE_LINKS_ADMIN') : '');
 
  $errors = "";
 

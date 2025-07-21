@@ -247,7 +247,7 @@ function log_out($method='normal') {
 
 function render_header($title="",$menu=TRUE) {
 
- global $SITE_NAME, $IS_ADMIN, $SENT_HEADERS, $SERVER_PATH, $CUSTOM_STYLES;
+ global $SITE_NAME, $IS_ADMIN, $SENT_HEADERS, $SERVER_PATH, $CUSTOM_STYLES, $SITE_THEME_NAME, $THEME_VARIANT, $THEME_VARIANTS;
 
  if (empty($title)) { $title = $SITE_NAME; }
 
@@ -260,6 +260,10 @@ function render_header($title="",$menu=TRUE) {
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>bootstrap/css/bootstrap.min.css">
+ <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>themes/<?php print $SITE_THEME_NAME; ?>.css">
+ <?php if ($SITE_THEME_NAME == 'modern') { ?>
+ <link rel="stylesheet" href="<?php print $SERVER_PATH; ?>themes/<?php print $SITE_THEME_NAME; ?>-<?php print $THEME_VARIANT; ?>.css">
+ <?php } ?>
  <?php if ($CUSTOM_STYLES) echo '<link rel="stylesheet" href="'.$CUSTOM_STYLES.'">' ?>
  <script src="<?php print $SERVER_PATH; ?>js/jquery-3.6.0.min.js"></script>
  <script src="<?php print $SERVER_PATH; ?>bootstrap/js/bootstrap.min.js"></script>
@@ -289,7 +293,7 @@ function render_header($title="",$menu=TRUE) {
 }
 
 
-######################################################
+
 
 function render_menu() {
 
@@ -299,7 +303,7 @@ function render_menu() {
  global $SITE_NAME, $MODULES, $THIS_MODULE, $VALIDATED, $IS_ADMIN, $USER_ID, $SERVER_PATH, $CUSTOM_LOGO;
 
  ?>
-  <nav class="navbar navbar-default">
+  <nav id="menu-main" class="navbar navbar-default">
    <div class="container-fluid">
    <div class="navbar-header"><?php
       if ($CUSTOM_LOGO) echo '<span class="navbar-brand"><img src="'.$CUSTOM_LOGO.'" class="logo" alt="logo"></span>'
@@ -309,31 +313,58 @@ function render_menu() {
      <?php
      foreach ($MODULES as $module => $access) {
 
-      $this_module_name=stripslashes(ucwords(preg_replace('/_/',' ',$module)));
+      # Handle site links modules (arrays) vs regular modules (strings)
+      if (is_array($access)) {
+        # Site links module
+        $this_module_name = $access['name'];
+        $module_access = $access['access'];
+        $module_links = $access['links'];
+        $is_site_links_module = TRUE;
+      } else {
+        # Regular module
+        $this_module_name = stripslashes(ucwords(preg_replace('/_/',' ',$module)));
+        $module_access = $access;
+        $is_site_links_module = FALSE;
+      }
 
       $show_this_module = TRUE;
       if ($VALIDATED == TRUE) {
-       if ($access == 'hidden_on_login') { $show_this_module = FALSE; }
-       if ($IS_ADMIN == FALSE and $access == 'admin' ){ $show_this_module = FALSE; }
+       if ($module_access == 'hidden_on_login') { $show_this_module = FALSE; }
+       if ($IS_ADMIN == FALSE and $module_access == 'admin' ){ $show_this_module = FALSE; }
       }
       else {
-       if ($access != 'hidden_on_login') { $show_this_module = FALSE; }
+       if ($module_access != 'hidden_on_login') { $show_this_module = FALSE; }
       }
-      #print "<p>$module - access is $access & show is $show_this_module</p>";
+      
       if ($show_this_module == TRUE ) {
-       if ($module == $THIS_MODULE) {
-        print "<li class='active'>";
+       if ($is_site_links_module && !empty($module_links)) {
+         # Render site links module as dropdown
+         ?>
+         <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php print htmlspecialchars($this_module_name); ?> <span class="caret"></span></a>
+           <ul class="dropdown-menu">
+             <?php foreach ($module_links as $link): ?>
+               <li><a href="<?php print htmlspecialchars($link['url']); ?>" target="_blank"><?php print htmlspecialchars($link['name']); ?></a></li>
+             <?php endforeach; ?>
+           </ul>
+         </li>
+         <?php
+       } else if (!$is_site_links_module) {
+         # Render regular module as link
+         if ($module == $THIS_MODULE) {
+          print "<li class='active'>";
+         }
+         else {
+          print '<li>';
+         }
+         print "<a href='{$SERVER_PATH}{$module}/'>$this_module_name</a></li>\n";
        }
-       else {
-        print '<li>';
-       }
-       print "<a href='{$SERVER_PATH}{$module}/'>$this_module_name</a></li>\n";
       }
      }
      ?>
      </ul>
      <ul class="nav navbar-nav navbar-right">
-      <li><a style="color:#333"><?php if(isset($USER_ID)) { print $USER_ID; } ?></a></li>
+      <li><a><?php if(isset($USER_ID)) { print $USER_ID; } ?></a></li>
      </ul>
    </div>
   </nav>

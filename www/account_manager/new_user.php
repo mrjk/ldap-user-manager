@@ -5,6 +5,7 @@ set_include_path( ".:" . __DIR__ . "/../includes/");
 include_once "web_functions.inc.php";
 include_once "ldap_functions.inc.php";
 include_once "module_functions.inc.php";
+include_once __DIR__ . "/../setup/module_functions.inc.php";
 
 $attribute_map = $LDAP['default_attribute_map'];
 if (isset($LDAP['account_additional_attributes'])) { $attribute_map = ldap_complete_attribute_array($attribute_map,$LDAP['account_additional_attributes']); }
@@ -16,6 +17,9 @@ if (! array_key_exists($LDAP['account_attribute'], $attribute_map)) {
 if ( isset($_POST['setup_admin_account']) ) {
 
   $admin_setup = TRUE;
+
+  # Check if setup is disabled
+  check_setup_disabled();
 
   validate_setup_cookie();
   set_page_access("setup");

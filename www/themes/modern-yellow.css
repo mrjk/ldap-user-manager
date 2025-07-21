@@ -1,0 +1,290 @@
+/* Modern Theme - Yellow Variant */
+/* Color overrides for yellow theme */
+
+/* Menu Styling */
+#menu-main {
+    background-color: #fbbf24;
+    border-bottom: 2px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+#menu-sub {
+    background-color: #fbbf24;
+    border-bottom: 2px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+/* Navbar Styling */
+.navbar-default {
+    background-color: #fbbf24;
+    border-color: #fcd34d;
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav > li > a {
+    color: #1f2937;
+}
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+    color: #1f2937;
+}
+
+.navbar-default .navbar-text {
+    color: #1f2937;
+}
+
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+    color: #1f2937;
+    background-color: #fcd34d;
+    border: none;
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+    background-color: #fcd34d;
+    color: #1f2937;
+    border: none;
+}
+
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+    background-color: #fcd34d;
+    color: #1f2937;
+    border-color: #fcd34d;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #1f2937;
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+    background-color: #fcd34d;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #1f2937;
+}
+
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+    border-color: #fcd34d;
+}
+
+.navbar-default .navbar-link {
+    color: #1f2937;
+}
+
+.navbar-default .navbar-link:hover {
+    color: #1f2937;
+}
+
+.navbar-default .btn-link {
+    color: #1f2937;
+}
+
+.navbar-default .btn-link:hover,
+.navbar-default .btn-link:focus {
+    color: #1f2937;
+}
+
+/* Dropdown Menu Styling */
+.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #fbbf24;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #fcd34d;
+    background-color: #fefce8;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #1f2937;
+    background-color: #fcd34d;
+}
+
+/* Panel Styling */
+.panel {
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.panel-default {
+    border: none;
+    border-radius: 0;
+}
+
+.panel-default > .panel-heading {
+    background-color: #fbbf24;
+    border: none;
+    color: #1f2937;
+    border-radius: 0;
+}
+
+.panel-group .panel {
+    border-radius: 0;
+}
+
+.panel-group .panel-heading {
+    border-radius: 0;
+}
+
+.panel-group .panel-title > a {
+    color: #1f2937;
+}
+
+.panel-group .panel-title > a:hover,
+.panel-group .panel-title > a:focus {
+    color: #1f2937;
+    text-decoration: none;
+}
+
+/* List Group Styling */
+.list-group , #member_of_list{
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.list-group-item {
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.list-group-item:first-child {
+    border-radius: 0;
+    border-top: 1px solid #d1d5db;
+}
+
+.list-group-item:last-child {
+    border-radius: 0;
+    border-bottom: 1px solid #d1d5db;
+}
+
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus {
+    background-color: #fbbf24;
+    border-color: #fcd34d;
+    color: #1f2937;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 0;
+}
+
+.btn-primary {
+    background-color: #fbbf24;
+    border-color: #fcd34d;
+    color: #1f2937;
+    border-radius: 0;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #fcd34d;
+    border-color: #fcd34d;
+    color: #1f2937;
+    border-radius: 0;
+}
+
+.btn-default {
+    border-radius: 0;
+}
+
+.btn-success {
+    border-radius: 0;
+}
+
+.btn-info {
+    border-radius: 0;
+}
+
+.btn-warning {
+    border-radius: 0;
+}
+
+.btn-danger {
+    border-radius: 0;
+}
+
+/* Form Control Styling */
+.form-control {
+    border-radius: 0;
+    border: 1px solid #d1d5db;
+}
+
+.form-control:focus {
+    border-color: #fcd34d;
+    box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.25);
+}
+
+.input-group-addon {
+    border-radius: 0;
+}
+
+.input-group .form-control:first-child {
+    border-radius: 0;
+}
+
+.input-group .form-control:last-child {
+    border-radius: 0;
+}
+
+/* Label Styling */
+.label-primary {
+    background-color: #fbbf24;
+    color: #1f2937;
+    border-radius: 0;
+}
+
+.label {
+    border-radius: 0;
+}
+
+/* Well Styling */
+.well {
+    border-radius: 0;
+    border: none;
+    background-color: #fefce8;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 0;
+    border: none;
+}
+
+/* Link Styling */
+a {
+    color: #374151;
+}
+
+a:hover,
+a:focus {
+    color: #1f2937;
+}
+
+a:visited {
+    color: #6b7280;
+}
+
+a:visited:hover,
+a:visited:focus {
+    color: #374151;
+} 

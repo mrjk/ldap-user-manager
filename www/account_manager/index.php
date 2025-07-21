@@ -30,21 +30,46 @@ if (isset($_POST['delete_user'])) {
 }
 
 $people_data = ldap_get_user_datalist($ldap_connection);
-
 $sub_groups = $people_data["groups"];
 $people = $people_data["records"];
-
 ?>
+
 <div class="container">
- <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
-  <button type="button" class="btn btn-light"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></button>  &nbsp; <button id="add_group" class="btn btn-default" type="submit">New user</button>
- </form> 
- <input class="form-control" id="search_input" type="text" placeholder="Search..">
+
+  <div class="row">
+    <div class="col-md-4">
+      <form action="<?php print $THIS_MODULE_PATH; ?>/new_user.php" method="post">
+        <button id="add_group" class="btn btn-primary" type="submit">New user</button>
+      </form> 
+    </div>
+
+    <div class="col-md-4">
+      <input class="form-control" id="search_input" type="text" placeholder="Filter...">
+    </div>
+
+    <div class="col-sm-4 text-right">
+      <span class="label label-primary"><?php print count($people);?> account<?php if (count($people) != 1) { print "s"; }?></span>  
+    </div>
+  </div>
 
  <?php
 foreach ($sub_groups as $sub_group){
-?>
 
+  $first_user = null;
+  foreach ($people as $user) {
+    if (isset($user['group_name']) && $user['group_name'] == $sub_group) {
+      $first_user = $user;
+      break;
+    }
+  }
+  $group_suffix = "";
+  if ($first_user['managed'] == TRUE) {
+    $group_suffix = '<span class="label label-success">managed</span>';
+  } else {
+    $group_suffix = '<span class="label label-warning">unmanaged</span>';
+  }
+
+?>
 
  <table class="table table-striped table-fixed">
   <thead>
@@ -52,7 +77,9 @@ foreach ($sub_groups as $sub_group){
      <th class="col-md-3"><?php print $sub_group; ?>
      </th>
      <th class="col-md-3"></th>
-     <th class="col-md-6" ></th>
+     <th class="col-lg-6 text-right" style="padding-right: 0px;" >
+     <?php print $group_suffix; ?>
+     </th>
    </tr>
   </thead>
  <tbody id="userlist">
@@ -80,9 +107,8 @@ foreach ($people as $record ){ //=> $attribs){
     $group_membership = ldap_user_group_membership($ldap_connection,$account_identifier);
     if (isset($record['mail'])) { $this_mail = $record['mail']; } else { $this_mail = ""; }
 
-    print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_user.php?account_identifier=" . 
-      urlencode($account_identifier) .
-      "'>$account_identifier</a></td>\n";
+    print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_user.php?account_identifier=" .
+    urlencode($account_identifier) . "'>$account_identifier</a></td>\n";
     print "   <td>$this_mail</td>\n"; 
     print "   <td>" . implode(", ", $group_membership) . "</td>\n";
     print " </tr>\n";
