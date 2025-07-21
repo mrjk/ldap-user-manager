@@ -100,6 +100,10 @@ For example, if you're using Docker Swarm and you've set the LDAP bind password 
 
 ### Optional:
 
+* `SITE_THEME_NAME`: The theme to use for the web interface. Available options: `classic` (default), `modern`. e.g. `SITE_THEME_NAME=modern`
+
+### Optional:
+
 
 #### Web server settings
 
