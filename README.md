@@ -42,25 +42,24 @@ With `blue` modern theme.
 
 **Edit accounts**:
 
-<img src="docs/screenshots/user_edit.png" alt="account_overview" style="max-height: 200px;"/>
+<img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/user_edit.png" alt="account_overview" style="max-height: 200px;"/>
 
 
 **Manage group membership**:
 
-<img src="docs/screenshots/group_view.png" alt="group_membership" style="max-height: 200px;"/>
+<img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/group_view.png" alt="group_membership" style="max-height: 200px;"/>
 
 
 **Self-service password change**:
 
-<img src="docs/screenshots/password_change.png" alt="self_service_password_change" style="max-height: 200px;"/>
+<img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/password_change.png" alt="self_service_password_change" style="max-height: 200px;"/>
 
 
 **Modern theme (anthracite is default)**:
-| | |
 |---|---|
-| anthracite<br><img src="docs/screenshots/theme_anthracite.png" alt="modern theme" style="max-width: 200px;"/> | green<br><img src="docs/screenshots/theme_green.png" alt="classic theme" style="max-width: 200px;"/> |
-| orange<br><img src="docs/screenshots/theme_orange.png" alt="dark theme" style="max-width: 200px;"/> | blue<br><img src="docs/screenshots/theme_blue.png" alt="light theme" style="max-width: 200px;"/> |
-| yellow<br><img src="docs/screenshots/theme_yellow.png" alt="minimal theme" style="max-width: 200px;"/> | |
+| anthracite<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots/theme_anthracite.png" alt="modern theme" style="max-width: 200px;"/> | green<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_green.png" alt="classic theme" style="max-width: 200px;"/> |
+| orange<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_orange.png" alt="dark theme" style="max-width: 200px;"/> | blue<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_blue.png" alt="light theme" style="max-width: 200px;"/> |
+| yellow<br><img src="https://raw.githubusercontent.com/mrjk/ldap-user-manager/refs/heads/main/docs/screenshots//theme_yellow.png" alt="minimal theme" style="max-width: 200px;"/> | |
 
 
 
