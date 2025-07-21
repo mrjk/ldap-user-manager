@@ -119,6 +119,10 @@ These settings should only be changed if you're trying to make the user manager 
 
 * `THEME_VARIANT`: The color variant for the modern theme. Available options: `anthracite` (default), `orange`, `blue`, `anthracite`, `green`, `yellow`. Only applies when `SITE_THEME_NAME=modern`. e.g. `THEME_VARIANT=orange`
 
+* `SITE_LINKS_USERS` (no default): Configurable links for all authenticated users. Format: `NAME=URL|NAME=URL|...`. Creates an "Other" dropdown menu in the navigation. e.g. `SITE_LINKS_USERS="Help=https://help.example.com|Wiki=https://wiki.example.com"`
+
+* `SITE_LINKS_ADMIN` (no default): Configurable links for admin users only. Format: `NAME=URL|NAME=URL|...`. Creates a "Tools" dropdown menu in the navigation. e.g. `SITE_LINKS_ADMIN="LDAP Admin=https://ldapadmin.example.com|Monitoring=https://monitoring.example.com"`
+
 
 
 #### Email sending settings

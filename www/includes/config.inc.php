@@ -191,6 +191,10 @@
  $CUSTOM_LOGO = (getenv('CUSTOM_LOGO') ? getenv('CUSTOM_LOGO') : FALSE);
  $CUSTOM_STYLES = (getenv('CUSTOM_STYLES') ? getenv('CUSTOM_STYLES') : FALSE);
 
+  # Site links configuration
+ $SITE_LINKS_USERS = (getenv('SITE_LINKS_USERS') ? getenv('SITE_LINKS_USERS') : '');
+ $SITE_LINKS_ADMIN = (getenv('SITE_LINKS_ADMIN') ? getenv('SITE_LINKS_ADMIN') : '');
+
  $errors = "";
 
  if (empty($LDAP['uri'])) {

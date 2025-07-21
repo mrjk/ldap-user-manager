@@ -293,7 +293,7 @@ function render_header($title="",$menu=TRUE) {
 }
 
 
-######################################################
+
 
 function render_menu() {
 
@@ -313,25 +313,52 @@ function render_menu() {
      <?php
      foreach ($MODULES as $module => $access) {
 
-      $this_module_name=stripslashes(ucwords(preg_replace('/_/',' ',$module)));
+      # Handle site links modules (arrays) vs regular modules (strings)
+      if (is_array($access)) {
+        # Site links module
+        $this_module_name = $access['name'];
+        $module_access = $access['access'];
+        $module_links = $access['links'];
+        $is_site_links_module = TRUE;
+      } else {
+        # Regular module
+        $this_module_name = stripslashes(ucwords(preg_replace('/_/',' ',$module)));
+        $module_access = $access;
+        $is_site_links_module = FALSE;
+      }
 
       $show_this_module = TRUE;
       if ($VALIDATED == TRUE) {
-       if ($access == 'hidden_on_login') { $show_this_module = FALSE; }
-       if ($IS_ADMIN == FALSE and $access == 'admin' ){ $show_this_module = FALSE; }
+       if ($module_access == 'hidden_on_login') { $show_this_module = FALSE; }
+       if ($IS_ADMIN == FALSE and $module_access == 'admin' ){ $show_this_module = FALSE; }
       }
       else {
-       if ($access != 'hidden_on_login') { $show_this_module = FALSE; }
+       if ($module_access != 'hidden_on_login') { $show_this_module = FALSE; }
       }
-      #print "<p>$module - access is $access & show is $show_this_module</p>";
+      
       if ($show_this_module == TRUE ) {
-       if ($module == $THIS_MODULE) {
-        print "<li class='active'>";
+       if ($is_site_links_module && !empty($module_links)) {
+         # Render site links module as dropdown
+         ?>
+         <li class="dropdown">
+           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php print htmlspecialchars($this_module_name); ?> <span class="caret"></span></a>
+           <ul class="dropdown-menu">
+             <?php foreach ($module_links as $link): ?>
+               <li><a href="<?php print htmlspecialchars($link['url']); ?>" target="_blank"><?php print htmlspecialchars($link['name']); ?></a></li>
+             <?php endforeach; ?>
+           </ul>
+         </li>
+         <?php
+       } else if (!$is_site_links_module) {
+         # Render regular module as link
+         if ($module == $THIS_MODULE) {
+          print "<li class='active'>";
+         }
+         else {
+          print '<li>';
+         }
+         print "<a href='{$SERVER_PATH}{$module}/'>$this_module_name</a></li>\n";
        }
-       else {
-        print '<li>';
-       }
-       print "<a href='{$SERVER_PATH}{$module}/'>$this_module_name</a></li>\n";
       }
      }
      ?>

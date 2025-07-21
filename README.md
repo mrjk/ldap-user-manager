@@ -23,6 +23,7 @@ Base features:
 Fork features:
  
  * Basic management of sub-ou to store users and groups.
+ * Provide options to display links for users and admins.
  * Improved modern theme that improve UX.
  * Provides 5 themes, to differenciate multiple instances.
 
@@ -262,6 +263,8 @@ services:
       << : *LUM_BASE_ENV
       SERVER_HOSTNAME: "127.0.0.0:8080"
       ORGANISATION_NAME: LDAP Simple
+      SITE_NAME: "Manage people accounts"
+      THEME_VARIANT: green
 
       LDAP_NEW_USER_OU: "users,ou=accounts"  # New users will be created on this DN
       LDAP_USER_OU: "users,ou=accounts"      # All user accounts under this dn are visible
@@ -279,6 +282,8 @@ services:
       << : *LUM_BASE_ENV
       SERVER_HOSTNAME: "127.0.0.0:8081"
       ORGANISATION_NAME: LDAP Services
+      SITE_NAME: "Manage services accounts"
+      THEME_VARIANT: blue
 
       LDAP_NEW_USER_OU: "services,ou=accounts"  # New users will be created on this DN
       LDAP_USER_OU: "accounts"                  # All user accounts under this dn are visible
