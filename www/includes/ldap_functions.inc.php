@@ -92,6 +92,12 @@ function ldap_auth_username($ldap_connection, $username, $password) {
 
  global $log_prefix, $LDAP, $SITE_LOGIN_LDAP_ATTRIBUTE, $LDAP_DEBUG;
 
+ # Ensure username is not null or empty
+ if (empty($username)) {
+  error_log("$log_prefix Empty username provided to ldap_auth_username");
+  return FALSE;
+ }
+
  $ldap_search_query="{$SITE_LOGIN_LDAP_ATTRIBUTE}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER);
  if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Running LDAP search for: $ldap_search_query"); }
 
@@ -639,6 +645,13 @@ function ldap_get_group_members($ldap_connection,$group_name,$start=0,$entries=N
 function ldap_user_dn($ldap_connection,$username) {
 
   global $log_prefix, $LDAP, $LDAP_DEBUG;
+  
+  # Ensure username is not null or empty
+  if (empty($username)) {
+   error_log("$log_prefix Empty username provided to ldap_user_dn");
+   return FALSE;
+  }
+  
   $old_username=$username;
 
   $ldap_search_query = "{$LDAP['account_attribute']}=" . ldap_escape($username, "", LDAP_ESCAPE_FILTER);
@@ -665,6 +678,13 @@ function ldap_user_dn($ldap_connection,$username) {
 function ldap_group_dn($ldap_connection,$group) {
 
   global $log_prefix, $LDAP, $LDAP_DEBUG;
+  
+  # Ensure group is not null or empty
+  if (empty($group)) {
+   error_log("$log_prefix Empty group provided to ldap_group_dn");
+   return FALSE;
+  }
+  
   $old_group=$group;
 
   $group = ldap_escape($group, "", LDAP_ESCAPE_FILTER);
@@ -701,6 +721,12 @@ function ldap_group_dn($ldap_connection,$group) {
 function ldap_is_group_member($ldap_connection,$group_name,$username) {
 
  global $log_prefix, $LDAP, $LDAP_DEBUG;
+
+ # Ensure group_name and username are not null or empty
+ if (empty($group_name) || empty($username)) {
+  error_log("$log_prefix Empty group_name or username provided to ldap_is_group_member");
+  return FALSE;
+ }
 
  $rfc2307bis_available = ldap_detect_rfc2307bis($ldap_connection);
 
