@@ -4,14 +4,15 @@
 /* Override any specific styling if needed for classic theme */
 
 #menu-main {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 #menu-main > .container-fluid {
     max-width: 1140px;
 }
 
-#menu-sub {
+#menu-sub,
+.alert {
     max-width: 1140px;
     margin-left: auto;
     margin-right: auto;
