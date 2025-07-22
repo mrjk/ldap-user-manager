@@ -227,11 +227,16 @@ if (isset($_POST['create_account'])) {
    <div class="alert alert-success">
    <p class="text-center"><?php print $creation_message; ?></p>
    </div>
-   <form action='<?php print $completed_action; ?>'>
-    <p align="center">
+   <div class="text-center">
+    <?php if ($admin_setup != TRUE) { ?>
+      <form action='<?php print $THIS_MODULE_PATH; ?>/new_user.php' method="post" style="display: inline-block;">
+      <button type="submit" class="btn btn-primary">Create New User</button>
+      </form>
+    <?php } ?>
+    <form action='<?php print $completed_action; ?>' style="display: inline-block; margin-right: 10px;">
      <input type='submit' class="btn btn-success" value='Finished'>
-    </p>
-   </form>
+    </form>
+   </div>
    <?php
    render_footer();
    exit(0);
