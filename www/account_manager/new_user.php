@@ -391,10 +391,10 @@ $tabindex=1;
      <div class="form-group" id="password_div">
       <label for="password" class="col-sm-3 control-label">Password</label>
       <div class="col-sm-6">
-       <input tabindex="<?php print $tabindex+1; ?>" type="text" class="form-control" id="password" name="password" onkeyup="back_to_hidden('password','confirm');">
+       <input tabindex="<?php print $tabindex+2; ?>" type="text" class="form-control" id="password" name="password" onkeyup="back_to_hidden('password','confirm');">
       </div>
       <div class="col-sm-1">
-       <input tabindex="<?php print $tabindex+2; ?>" type="button" class="btn btn-sm" id="password_generator" onclick="random_password();" value="Generate password">
+       <input tabindex="<?php print $tabindex+1; ?>" type="button" class="btn btn-sm" id="password_generator" onclick="random_password();" value="Generate password">
       </div>
      </div>
 
