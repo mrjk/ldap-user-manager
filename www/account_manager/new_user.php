@@ -405,6 +405,15 @@ $tabindex=1;
       </div>
      </div>
 
+     <div class="form-group" id="password_div">
+      <label for="password" class="col-sm-3 control-label"></label>
+      <div class="col-sm-6">
+          <div class="progress" style="margin-bottom: 0px;">
+            <div id="StrengthProgressBar" class="progress-bar"></div>
+          </div>
+      </div>
+     </div>
+
 <?php  if ($EMAIL_SENDING_ENABLED == TRUE and $admin_setup != TRUE) { ?>
       <div class="form-group" id="send_email_div">
        <label for="send_email" class="col-sm-3 control-label"> </label>
@@ -420,9 +429,6 @@ $tabindex=1;
 
     </form>
 
-    <div class="progress">
-     <div id="StrengthProgressBar" class="progress-bar"></div>
-    </div>
 
     <div><sup>&ast;</sup>The account identifier</div>
 
