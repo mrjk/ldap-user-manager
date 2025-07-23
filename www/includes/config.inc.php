@@ -73,6 +73,14 @@
    $LDAP['default_group_attribute_map']["gidnumber"] = array("label" => "Group ID number");
  }
 
+ // Update onkeyup handlers to use the correct account attribute
+ $account_attr = $LDAP['account_attribute'];
+ if (isset($LDAP['default_attribute_map'][$account_attr])) {
+   $LDAP['default_attribute_map'][$account_attr]['onkeyup'] = 
+     "check_entity_name_validity(document.getElementById('$account_attr').value,'{$account_attr}_div'); 
+      update_email(); update_homedir(); check_email_validity(document.getElementById('mail').value);";
+ }
+
 
  ## LDAP server
 

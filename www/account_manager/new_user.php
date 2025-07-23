@@ -295,10 +295,10 @@ if ($errors != "") { ?>
 }
 
 render_js_username_check();
-render_js_username_generator('givenname','sn','uid','uid_div');
+render_js_username_generator('givenname','sn',$LDAP['account_attribute'],$LDAP['account_attribute'] . '_div');
 render_js_cn_generator('givenname','sn','cn','cn_div');
-render_js_email_generator('uid','mail');
-render_js_homedir_generator('uid','homedirectory');
+render_js_email_generator($LDAP['account_attribute'],'mail');
+render_js_homedir_generator($LDAP['account_attribute'],'homedirectory');
 
 $tabindex=1;
 
@@ -316,13 +316,18 @@ $tabindex=1;
 
  function check_passwords_match() {
 
-   if (document.getElementById('password').value != document.getElementById('confirm').value ) {
-       document.getElementById('password_div').classList.add("has-error");
-       document.getElementById('confirm_div').classList.add("has-error");
+   var passwordDiv = document.getElementById('password_div');
+   var confirmDiv = document.getElementById('confirm_div');
+   var passwordField = document.getElementById('password');
+   var confirmField = document.getElementById('confirm');
+
+   if (passwordField && confirmField && passwordField.value != confirmField.value ) {
+       if (passwordDiv) { passwordDiv.classList.add("has-error"); }
+       if (confirmDiv) { confirmDiv.classList.add("has-error"); }
    }
    else {
-    document.getElementById('password_div').classList.remove("has-error");
-    document.getElementById('confirm_div').classList.remove("has-error");
+    if (passwordDiv) { passwordDiv.classList.remove("has-error"); }
+    if (confirmDiv) { confirmDiv.classList.remove("has-error"); }
    }
   }
 
@@ -334,8 +339,11 @@ $tabindex=1;
 
  function back_to_hidden(passwordField,confirmField) {
 
-  var passwordField = document.getElementById(passwordField).type = 'password';
-  var confirmField = document.getElementById(confirmField).type = 'password';
+  var passwordField = document.getElementById(passwordField);
+  var confirmField = document.getElementById(confirmField);
+  
+  if (passwordField) { passwordField.type = 'password'; }
+  if (confirmField) { confirmField.type = 'password'; }
 
  }
 
@@ -345,15 +353,17 @@ $tabindex=1;
 
  function check_email_validity(mail) {
 
-  var check_regex = <?php print $JS_EMAIL_REGEX; ?>
+  var check_regex = <?php print $JS_EMAIL_REGEX; ?>;
+  var mailDiv = document.getElementById("mail_div");
+  var sendEmailCheckbox = document.getElementById("send_email_checkbox");
 
   if (! check_regex.test(mail) ) {
-   document.getElementById("mail_div").classList.add("has-error");
-   <?php if ($EMAIL_SENDING_ENABLED == TRUE) { ?>document.getElementById("send_email_checkbox").disabled = true;<?php } ?>
+   if (mailDiv) { mailDiv.classList.add("has-error"); }
+   <?php if ($EMAIL_SENDING_ENABLED == TRUE) { ?>if (sendEmailCheckbox) { sendEmailCheckbox.disabled = true; }<?php } ?>
   }
   else {
-   document.getElementById("mail_div").classList.remove("has-error");
-   <?php if ($EMAIL_SENDING_ENABLED == TRUE) { ?>document.getElementById("send_email_checkbox").disabled = false;<?php } ?>
+   if (mailDiv) { mailDiv.classList.remove("has-error"); }
+   <?php if ($EMAIL_SENDING_ENABLED == TRUE) { ?>if (sendEmailCheckbox) { sendEmailCheckbox.disabled = false; }<?php } ?>
   }
 
  }
@@ -405,7 +415,7 @@ $tabindex=1;
       </div>
      </div>
 
-     <div class="form-group" id="password_div">
+     <div class="form-group" id="strength_div">
       <label for="password" class="col-sm-3 control-label"></label>
       <div class="col-sm-6">
           <div class="progress" style="margin-bottom: 0px;">

@@ -495,12 +495,13 @@ function render_js_username_check(){
  function check_entity_name_validity(name,div_id) {
 
   var check_regex = /$USERNAME_REGEX/;
+  var div = document.getElementById(div_id);
 
   if (! check_regex.test(name) ) {
-   document.getElementById(div_id).classList.add("has-error");
+   if (div) { div.classList.add("has-error"); }
   }
   else {
-   document.getElementById(div_id).classList.remove("has-error");
+   if (div) { div.classList.remove("has-error"); }
   }
 
  }
@@ -568,8 +569,16 @@ function render_js_username_generator($firstname_field_id,$lastname_field_id,$us
 <script>
  function update_username() {
 
-  var first_name = document.getElementById('$firstname_field_id').value;
-  var last_name  = document.getElementById('$lastname_field_id').value;
+  var first_name_field = document.getElementById('$firstname_field_id');
+  var last_name_field = document.getElementById('$lastname_field_id');
+  var username_field = document.getElementById('$username_field_id');
+  
+  if (!first_name_field || !last_name_field || !username_field) {
+    return; // Fields don't exist, exit gracefully
+  }
+
+  var first_name = first_name_field.value;
+  var last_name  = last_name_field.value;
   var template = '$USERNAME_FORMAT';
 
   var actual_username = template;
@@ -581,7 +590,7 @@ function render_js_username_generator($firstname_field_id,$lastname_field_id,$us
 
   check_entity_name_validity(actual_username,'$username_div_id');
 
-  document.getElementById('$username_field_id').value = actual_username;
+  username_field.value = actual_username;
 
  }
 
@@ -609,8 +618,16 @@ function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field
  function update_cn() {
 
   if ( auto_cn_update == true ) {
-    var first_name = document.getElementById('$firstname_field_id').value;
-    var last_name  = document.getElementById('$lastname_field_id').value;
+    var first_name_field = document.getElementById('$firstname_field_id');
+    var last_name_field = document.getElementById('$lastname_field_id');
+    var cn_field = document.getElementById('$cn_field_id');
+    
+    if (!first_name_field || !last_name_field || !cn_field) {
+      return; // Fields don't exist, exit gracefully
+    }
+
+    var first_name = first_name_field.value;
+    var last_name  = last_name_field.value;
     var template = '$CN_FORMAT';
     var username_template = '$USERNAME_FORMAT';
 
@@ -630,7 +647,7 @@ function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field
     actual_cn = actual_cn.replace('{last_name_initial}', last_name.charAt(0)$remove_accents );
     actual_cn = actual_cn.replace('{username}', actual_username);
 
-    document.getElementById('$cn_field_id').value = actual_cn;
+    cn_field.value = actual_cn;
   }
 
  }
@@ -655,8 +672,15 @@ function render_js_email_generator($username_field_id,$email_field_id) {
  function update_email() {
 
   if ( auto_email_update == true && "$EMAIL_DOMAIN" != ""  ) {
-    var username = document.getElementById('$username_field_id').value;
-    document.getElementById('$email_field_id').value = username + '@' + "$EMAIL_DOMAIN";
+    var username_field = document.getElementById('$username_field_id');
+    var email_field = document.getElementById('$email_field_id');
+    
+    if (!username_field || !email_field) {
+      return; // Fields don't exist, exit gracefully
+    }
+    
+    var username = username_field.value;
+    email_field.value = username + '@' + "$EMAIL_DOMAIN";
   }
 
  }
@@ -679,8 +703,15 @@ function render_js_homedir_generator($username_field_id,$homedir_field_id) {
  function update_homedir() {
 
   if ( auto_homedir_update == true ) {
-    var username = document.getElementById('$username_field_id').value;
-    document.getElementById('$homedir_field_id').value = "/home/" + username;
+    var username_field = document.getElementById('$username_field_id');
+    var homedir_field = document.getElementById('$homedir_field_id');
+    
+    if (!username_field || !homedir_field) {
+      return; // Fields don't exist, exit gracefully
+    }
+    
+    var username = username_field.value;
+    homedir_field.value = "/home/" + username;
   }
 
  }
