@@ -424,6 +424,7 @@ function ldap_get_user_list($ldap_connection,$start=0,$entries=NULL,$sort="asc",
     $add_these["group_name"] = $sub_group;
     $add_these["dn"] = $dn;
     $add_these["uid"] = $record['uid'][0];
+    $add_these["account_identifier"] = $record[$LDAP['account_attribute']][0];
 
     $parent_dn = get_parent_dn($dn);
     $add_these["managed"] = ( $parent_dn == $LDAP['new_user_dn'] ) ? TRUE: FALSE;

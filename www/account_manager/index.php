@@ -100,8 +100,8 @@ foreach ($people as $record ){ //=> $attribs){
 
     $record_dn = $record["dn"];
     $account_identifier="";
-    if (isset($record["uid"])) {
-      $account_identifier = $record["uid"];
+    if (isset($record["account_identifier"])) {
+      $account_identifier = $record["account_identifier"];
     }
 
     $group_membership = ldap_user_group_membership($ldap_connection,$account_identifier);
