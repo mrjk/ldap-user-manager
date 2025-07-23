@@ -81,6 +81,22 @@ If `EMAIL_DOMAIN` is set then the email address field will be automatically upda
 
 ***
 
+## CN format
+
+When entering a person's name the common name (CN) is automatically filled-in based on a template.  The template is defined in `CN_FORMAT` and is a string containing predefined macros that are replaced with the relevant value.   
+The default is `{first_name} {last_name}` with which *Jonathan Testperson*'s CN would be *Jonathan Testperson*.   
+Currently the available macros are:
+
+ * `{first_name}` : the first name (preserves case)
+ * `{first_name_initial}` : the first letter of the first name (preserves case)
+ * `{last_name}`: the last name (preserves case)
+ * `{last_name_initial}`: the first initial of the last name (preserves case)
+ * `{username}`: the generated username based on USERNAME_FORMAT template
+
+Anything else in the `CN_FORMAT` string is left unmodified.  If `ENFORCE_SAFE_SYSTEM_NAMES` is set then the CN will have accents removed to ensure compatibility.
+
+***
+
 ## Extra objectClasses and attributes
 
 By default accounts are created with `person`, `inetOrgPerson` and `posixAccount` object classes.  Groups are created with `posixGroup` - if [the RFC2307BIS schema](#using-the-rfc2307bis-schema) is available then `groupOfUniqueNames` is automatically added too.   

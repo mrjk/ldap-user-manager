@@ -142,12 +142,7 @@ if (isset($_GET['account_request']) or isset($_POST['create_account'])) {
   }
 
   if (!isset($cn[0])) {
-    if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE) {
-      $cn[0] = @$givenname[0] . @$sn[0];
-    }
-    else {
-      $cn[0] = @$givenname[0] . " " . @$sn[0];
-    }
+    $cn[0] = generate_cn($givenname[0], $sn[0]);
     $new_account_r['cn'] = $cn;
     unset($new_account_r['cn']['count']);
   }

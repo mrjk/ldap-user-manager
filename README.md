@@ -233,6 +233,7 @@ services:
       ORGANISATION_NAME: LDAP Simple
       SERVER_HOSTNAME: ldap.example.org:8081
       USERNAME_FORMAT: '{first_name}'
+      CN_FORMAT: '{first_name} {last_name}'
       USERNAME_REGEX: ^[a-z][a-zA-Z0-9._-]{2,32}$$
     networks:
       ldap_network:
@@ -265,6 +266,7 @@ x-lum-env: &LUM_BASE_ENV
   FORCE_RFC2307BIS: "True"
   USERNAME_REGEX: '^[a-z][a-zA-Z0-9._-]{2,32}$'
   USERNAME_FORMAT: '{first_name}'
+  CN_FORMAT: '{first_name} {last_name}'
 
 services:
   lum-user:

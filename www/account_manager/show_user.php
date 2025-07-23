@@ -126,12 +126,7 @@ if ($ldap_search) {
   }
 
   if (!isset($cn[0])) {
-    if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE) {
-      $cn[0] = $givenname[0] . $sn[0];
-    }
-    else {
-      $cn[0] = $givenname[0] . " " . $sn[0];
-    }
+    $cn[0] = generate_cn($givenname[0], $sn[0]);
     $to_update['cn'] = $cn;
     unset($to_update['cn']['count']);
   }

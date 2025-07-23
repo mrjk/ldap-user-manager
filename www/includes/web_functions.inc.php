@@ -535,6 +535,24 @@ function generate_username($fn,$ln) {
 
 ######################################################
 
+function generate_cn($fn,$ln) {
+
+  global $CN_FORMAT;
+
+  $cn = $CN_FORMAT;
+  $cn = @str_replace('{first_name}',$fn, $cn);
+  $cn = @str_replace('{first_name_initial}',$fn[0], $cn);
+  $cn = @str_replace('{last_name}',$ln, $cn);
+  $cn = @str_replace('{last_name_initial}',$ln[0], $cn);
+  $cn = @str_replace('{username}',generate_username($fn,$ln), $cn);
+
+  return $cn;
+
+}
+
+
+######################################################
+
 function render_js_username_generator($firstname_field_id,$lastname_field_id,$username_field_id,$username_div_id) {
 
  #Parameters are the IDs of the input fields and username name div in the account creation form.
@@ -578,14 +596,10 @@ EoRenderJS;
 
 function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field_id,$cn_div_id) {
 
-  global $ENFORCE_SAFE_SYSTEM_NAMES;
+  global $CN_FORMAT, $ENFORCE_SAFE_SYSTEM_NAMES, $USERNAME_FORMAT;
 
-  if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE) {
-    $gen_js = "first_name.normalize('NFD').replace(/[\u0300-\u036f]/g, '') + ' ' + last_name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')";
-  }
-  else {
-    $gen_js = "first_name + ' ' + last_name";
-  }
+  $remove_accents="";
+  if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE) { $remove_accents = ".normalize('NFD').replace(/[\u0300-\u036f]/g, '')"; }
 
   print <<<EoRenderCNJS
 <script>
@@ -597,8 +611,26 @@ function render_js_cn_generator($firstname_field_id,$lastname_field_id,$cn_field
   if ( auto_cn_update == true ) {
     var first_name = document.getElementById('$firstname_field_id').value;
     var last_name  = document.getElementById('$lastname_field_id').value;
-    this_cn = $gen_js;
-    document.getElementById('$cn_field_id').value = this_cn;
+    var template = '$CN_FORMAT';
+    var username_template = '$USERNAME_FORMAT';
+
+    var actual_cn = template;
+    var actual_username = username_template;
+
+    // Generate username first
+    actual_username = actual_username.replace('{first_name}', first_name.toLowerCase()$remove_accents );
+    actual_username = actual_username.replace('{first_name_initial}', first_name.charAt(0).toLowerCase()$remove_accents );
+    actual_username = actual_username.replace('{last_name}', last_name.toLowerCase()$remove_accents );
+    actual_username = actual_username.replace('{last_name_initial}', last_name.charAt(0).toLowerCase()$remove_accents );
+
+    // Generate CN
+    actual_cn = actual_cn.replace('{first_name}', first_name$remove_accents );
+    actual_cn = actual_cn.replace('{first_name_initial}', first_name.charAt(0)$remove_accents );
+    actual_cn = actual_cn.replace('{last_name}', last_name$remove_accents );
+    actual_cn = actual_cn.replace('{last_name_initial}', last_name.charAt(0)$remove_accents );
+    actual_cn = actual_cn.replace('{username}', actual_username);
+
+    document.getElementById('$cn_field_id').value = actual_cn;
   }
 
  }
