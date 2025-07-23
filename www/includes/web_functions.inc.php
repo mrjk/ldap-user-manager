@@ -313,8 +313,8 @@ function render_menu() {
      <?php
      foreach ($MODULES as $module => $access) {
 
-      # Skip the logout module - it will be handled separately in navbar-right
-      if ($module == 'log_out') {
+      # Skip the logout and login modules - they will be handled separately in navbar-right
+      if ($module == 'log_out' || $module == 'log_in') {
         continue;
       }
 
@@ -362,6 +362,7 @@ function render_menu() {
          else {
           print '<li>';
          }
+         
          print "<a href='{$SERVER_PATH}{$module}/'>$this_module_name</a></li>\n";
        }
       }
@@ -371,6 +372,21 @@ function render_menu() {
      <ul class="nav navbar-nav navbar-right">
       <li><span class="navbar-text"><?php if(isset($USER_ID)) { print $USER_ID; } ?></span></li>
       <?php
+      # Add login link if user is not validated and login module exists
+      if ($VALIDATED == FALSE && isset($MODULES['log_in'])) {
+        $login_access = $MODULES['log_in'];
+        $show_login = TRUE;
+        
+        # Check if login should be shown based on access level
+        if ($login_access == 'admin' && $IS_ADMIN == FALSE) {
+          $show_login = FALSE;
+        }
+        
+        if ($show_login) {
+          print "<li><a href='{$SERVER_PATH}log_in/'>Log In</a></li>\n";
+        }
+      }
+      
       # Add logout link if user is validated and logout module exists
       if ($VALIDATED == TRUE && isset($MODULES['log_out'])) {
         $logout_access = $MODULES['log_out'];
