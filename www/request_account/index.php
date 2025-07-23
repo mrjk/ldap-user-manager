@@ -28,14 +28,14 @@ if($_POST) {
     array_push($error_messages, "You didn't enter your first name.");
   }
   else {
-    $firstname=filter_var($_POST['firstname'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $firstname=trim($_POST['firstname']);
   }
 
   if (! isset($_POST['lastname']) or $_POST['lastname'] == "") {
     array_push($error_messages, "You didn't enter your first name.");
   }
   else {
-    $lastname=filter_var($_POST['lastname'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $lastname=trim($_POST['lastname']);
   }
 
   if (isset($_POST['email']) and $_POST['email'] != "") {
@@ -43,7 +43,7 @@ if($_POST) {
   }
 
   if (isset($_POST['notes']) and $_POST['notes'] != "") {
-    $notes=filter_var($_POST['notes'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $notes=trim($_POST['notes']);
   }
 
 
@@ -133,28 +133,28 @@ EoT;
     <div class="form-group">
      <label for="firstname" class="col-sm-4 control-label">First name</label>
      <div class="col-sm-6">
-      <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Required" <?php if (isset($firstname)) { print "value='$firstname'"; } ?>>
+      <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Required" <?php if (isset($firstname)) { print "value='" . htmlspecialchars($firstname, ENT_QUOTES, 'UTF-8') . "'"; } ?>>
      </div>
     </div>
 
     <div class="form-group">
      <label for="lastname" class="col-sm-4 control-label">Last name</label>
      <div class="col-sm-6">
-      <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Required" <?php if (isset($lastname)) { print "value='$lastname'"; } ?>>
+      <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Required" <?php if (isset($lastname)) { print "value='" . htmlspecialchars($lastname, ENT_QUOTES, 'UTF-8') . "'"; } ?>>
      </div>
     </div>
 
     <div class="form-group">
      <label for="email" class="col-sm-4 control-label">Email</label>
      <div class="col-sm-6">
-      <input type="text" class="form-control" id="email" name="email" <?php if (isset($email)) { print "value='$email'"; } ?>>
+      <input type="text" class="form-control" id="email" name="email" <?php if (isset($email)) { print "value='" . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . "'"; } ?>>
      </div>
     </div>
 
     <div class="form-group">
      <label for="Notes" class="col-sm-4 control-label">Notes</label>
      <div class="col-sm-6">
-      <textarea class="form-control" id="notes" name="notes" placeholder="Enter any extra information you think the administrator might need to know."><?php if (isset($notes)) { print $notes; } ?></textarea>
+      <textarea class="form-control" id="notes" name="notes" placeholder="Enter any extra information you think the administrator might need to know."><?php if (isset($notes)) { print htmlspecialchars($notes, ENT_QUOTES, 'UTF-8'); } ?></textarea>
      </div>
     </div>
 

@@ -784,7 +784,7 @@ function render_attribute_fields($attribute,$label,$values_r,$resource_identifie
        <div class="col-sm-6" id="<?php print $attribute; ?>_input_div">
        <?php if($inputtype == "multipleinput") {
              ?><div class="input-group">
-                  <input type="text" class="form-control" id="<?php print $attribute; ?>" name="<?php print $attribute; ?>[]" value="<?php if (isset($values_r[0])) { print $values_r[0]; } ?>">
+                  <input type="text" class="form-control" id="<?php print $attribute; ?>" name="<?php print $attribute; ?>[]" value="<?php if (isset($values_r[0])) { print htmlspecialchars($values_r[0], ENT_QUOTES, 'UTF-8'); } ?>">
                   <div class="input-group-btn"><button type="button" class="btn btn-default" onclick="add_field_to('<?php print $attribute; ?>')">+</i></button></div>
               </div>
             <?php
@@ -792,7 +792,7 @@ function render_attribute_fields($attribute,$label,$values_r,$resource_identifie
                  unset($values_r['count']);
                  $remaining_values = array_slice($values_r, 1);
                  print "<script>";
-                 foreach($remaining_values as $this_value) { print "add_field_to('$attribute','$this_value');"; }
+                 foreach($remaining_values as $this_value) { print "add_field_to('$attribute','" . htmlspecialchars($this_value, ENT_QUOTES, 'UTF-8') . "');"; }
                  print "</script>";
                }
              }
@@ -828,7 +828,7 @@ function render_attribute_fields($attribute,$label,$values_r,$resource_identifie
             <?php
             }
             else { ?>
-              <input <?php if (isset($tabindex)) { ?>tabindex="<?php print $tabindex; ?>" <?php } ?>type="text" class="form-control" id="<?php print $attribute; ?>" name="<?php print $attribute; ?>" value="<?php if (isset($values_r[0])) { print $values_r[0]; } ?>" <?php if ($onkeyup != "") { print "onkeyup=\"$onkeyup\""; } ?>>
+              <input <?php if (isset($tabindex)) { ?>tabindex="<?php print $tabindex; ?>" <?php } ?>type="text" class="form-control" id="<?php print $attribute; ?>" name="<?php print $attribute; ?>" value="<?php if (isset($values_r[0])) { print htmlspecialchars($values_r[0], ENT_QUOTES, 'UTF-8'); } ?>" <?php if ($onkeyup != "") { print "onkeyup=\"$onkeyup\""; } ?>>
             <?php
             }
             ?>

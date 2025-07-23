@@ -80,7 +80,7 @@ foreach ($attribute_map as $attribute => $attr_r) {
 
     if (is_array($_POST[$attribute]) and count($_POST[$attribute]) > 0) {
       foreach($_POST[$attribute] as $key => $value) {
-        if ($value != "") { $this_attribute[$key] = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS); }
+        if ($value != "") { $this_attribute[$key] = trim($value); }
       }
       if (count($this_attribute) > 0) {
         $this_attribute['count'] = count($this_attribute);
@@ -89,7 +89,7 @@ foreach ($attribute_map as $attribute => $attr_r) {
     }
     elseif ($_POST[$attribute] != "") {
       $this_attribute['count'] = 1;
-      $this_attribute[0] = filter_var($_POST[$attribute], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      $this_attribute[0] = trim($_POST[$attribute]);
       $$attribute = $this_attribute;
     }
 
@@ -111,10 +111,10 @@ foreach ($attribute_map as $attribute => $attr_r) {
 
 if (isset($_GET['account_request'])) {
 
-  $givenname[0]=filter_var($_GET['first_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $givenname[0]=trim($_GET['first_name']);
   $new_account_r['givenname'] = $givenname[0];
 
-  $sn[0]=filter_var($_GET['last_name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  $sn[0]=trim($_GET['last_name']);
   $new_account_r['sn'] = $sn[0];
 
   $mail[0]=filter_var($_GET['email'], FILTER_SANITIZE_EMAIL);

@@ -108,9 +108,9 @@ foreach ($people as $record ){ //=> $attribs){
     if (isset($record['mail'])) { $this_mail = $record['mail']; } else { $this_mail = ""; }
 
     print " <tr>\n   <td><a href='{$THIS_MODULE_PATH}/show_user.php?account_identifier=" .
-    urlencode($account_identifier) . "'>$account_identifier</a></td>\n";
-    print "   <td>$this_mail</td>\n"; 
-    print "   <td>" . implode(", ", $group_membership) . "</td>\n";
+    urlencode($account_identifier) . "'>" . htmlspecialchars($account_identifier, ENT_QUOTES, 'UTF-8') . "</a></td>\n";
+    print "   <td>" . htmlspecialchars($this_mail, ENT_QUOTES, 'UTF-8') . "</td>\n"; 
+    print "   <td>" . htmlspecialchars(implode(", ", $group_membership), ENT_QUOTES, 'UTF-8') . "</td>\n";
     print " </tr>\n";
   }
 }

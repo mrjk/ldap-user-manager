@@ -119,13 +119,13 @@ foreach ($attribute_map as $attribute => $attr_r) {
 
     if (is_array($_POST[$attribute])) {
       foreach($_POST[$attribute] as $key => $value) {
-        if ($value != "") { $this_attribute[$key] = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS); }
+                  if ($value != "") { $this_attribute[$key] = trim($value); }
       }
       $this_attribute['count'] = count($this_attribute);
     }
     elseif ($_POST[$attribute] != "") {
       $this_attribute['count'] = 1;
-      $this_attribute[0] = filter_var($_POST[$attribute], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+              $this_attribute[0] = trim($_POST[$attribute]);
     }
 
     if ($this_attribute != $$attribute) {
@@ -166,7 +166,7 @@ if (isset($_POST["update_members"])) {
   if (isset($_POST['membership'])) {
     foreach ($_POST['membership'] as $index => $member) {
       if (is_numeric($index)) {
-      array_push($updated_membership,filter_var($member, FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+      array_push($updated_membership,trim($member));
       }
     }
   }
@@ -452,10 +452,10 @@ ldap_close($ldap_connection);
                   <?php
                   foreach ($group_members as $member) {
                     if ($group_cn == $LDAP['admins_group'] and $member == $USER_ID) {
-                      print "<div class='list-group-item' style='opacity: 0.5; pointer-events:none;'>$member</div>\n";
+                      print "<div class='list-group-item' style='opacity: 0.5; pointer-events:none;'>" . htmlspecialchars($member, ENT_QUOTES, 'UTF-8') . "</div>\n";
                     }
                     else {
-                      print "<li class='list-group-item'>$member</li>\n";
+                      print "<li class='list-group-item'>" . htmlspecialchars($member, ENT_QUOTES, 'UTF-8') . "</li>\n";
                     }
                   }
                   ?>
@@ -495,7 +495,7 @@ ldap_close($ldap_connection);
                 <ul class="list-group">
                   <?php
                    foreach ($non_members as $nonmember) {
-                     print "<li class='list-group-item'>$nonmember</li>\n";
+                     print "<li class='list-group-item'>" . htmlspecialchars($nonmember, ENT_QUOTES, 'UTF-8') . "</li>\n";
                    }
                  ?>
                 </ul>

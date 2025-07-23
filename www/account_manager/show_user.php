@@ -79,13 +79,13 @@ if ($ldap_search) {
 
       if (is_array($_POST[$attribute])) {
         foreach($_POST[$attribute] as $key => $value) {
-          if ($value != "") { $this_attribute[$key] = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS); }
+          if ($value != "") { $this_attribute[$key] = trim($value); }
         }
         $this_attribute['count'] = count($this_attribute);
       }
       elseif ($_POST[$attribute] != "") {
         $this_attribute['count'] = 1;
-        $this_attribute[0] = filter_var($_POST[$attribute], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $this_attribute[0] = trim($_POST[$attribute]);
       }
 
       if ($this_attribute != $$attribute) {

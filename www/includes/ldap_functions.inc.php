@@ -985,7 +985,7 @@ function ldap_complete_attribute_array($default_attributes,$additional_attribute
 
       $this_r = array();
       $kv = explode(":", $this_attr);
-      $attr_name = strtolower(filter_var($kv[0], FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+      $attr_name = strtolower(trim($kv[0]));
       $this_r['inputtype'] = "singleinput";
 
       if (substr($attr_name, -1) == '+') {
@@ -1001,14 +1001,14 @@ function ldap_complete_attribute_array($default_attributes,$additional_attribute
       if (preg_match('/^[a-zA-Z0-9\-]+$/', $attr_name) == 1) {
 
         if (isset($kv[1]) and $kv[1] != "") {
-          $this_r['label'] = filter_var($kv[1], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+          $this_r['label'] = trim($kv[1]);
         }
         else {
           $this_r['label'] = $attr_name;
         }
 
         if (isset($kv[2]) and $kv[2] != "") {
-          $this_r['default'] = filter_var($kv[2], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+          $this_r['default'] = trim($kv[2]);
         }
 
         $to_merge[$attr_name] = $this_r;
