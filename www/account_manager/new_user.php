@@ -51,6 +51,8 @@ $invalid_cn = FALSE;
 $invalid_givenname = FALSE;
 $invalid_sn = FALSE;
 $invalid_account_identifier = FALSE;
+$empty_password = FALSE;
+$empty_confirm = FALSE;
 $account_attribute = $LDAP['account_attribute'];
 
 $new_account_r = array();
@@ -173,6 +175,12 @@ if (isset($_POST['create_account'])) {
  if (preg_match("/\"|'/",$password)) { $invalid_password = TRUE; }
  if ($password != $_POST['password_match']) { $mismatched_passwords = TRUE; }
  if ($ENFORCE_SAFE_SYSTEM_NAMES == TRUE and !preg_match("/$USERNAME_REGEX/",$account_identifier)) { $invalid_account_identifier = TRUE; }
+ 
+ // Additional validation for admin setup
+ if ($admin_setup == TRUE) {
+   if (!isset($password) or trim($password) == "") { $empty_password = TRUE; }
+   if (!isset($_POST['password_match']) or trim($_POST['password_match']) == "") { $empty_confirm = TRUE; }
+ }
  if (isset($_POST['send_email']) and isset($mail) and $EMAIL_SENDING_ENABLED == TRUE) { $send_user_email = TRUE; }
 
  if (     isset($this_givenname)
@@ -183,7 +191,9 @@ if (isset($_POST['create_account'])) {
       and !$invalid_password
       and !$invalid_account_identifier
       and !$invalid_cn
-      and !$invalid_email) {
+      and !$invalid_email
+      and !$empty_password
+      and !$empty_confirm) {
 
   $ldap_connection = open_ldap_connection();
   $new_account = ldap_new_account($ldap_connection, $new_account_r);
@@ -274,6 +284,8 @@ if ($invalid_password) { $errors.="<li>The password contained invalid characters
 if ($invalid_email) { $errors.="<li>The email address is invalid</li>\n"; }
 if ($mismatched_passwords) { $errors.="<li>The passwords are mismatched</li>\n"; }
 if ($invalid_username) { $errors.="<li>The username is invalid</li>\n"; }
+if ($empty_password) { $errors.="<li>The password field is required</li>\n"; }
+if ($empty_confirm) { $errors.="<li>The confirm password field is required</li>\n"; }
 
 if ($errors != "") { ?>
 <div class="alert alert-warning">
