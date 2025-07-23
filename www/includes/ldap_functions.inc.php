@@ -128,11 +128,17 @@ function ldap_auth_username($ldap_connection, $username, $password) {
   $can_bind =  @ ldap_bind($auth_ldap_connection, $result[0]['dn'], $password);
 
   if ($can_bind) {
-   preg_match("/{$LDAP['account_attribute']}=(.*?),/",$result[0]['dn'],$dn_match);
-   $account_id=$dn_match[1];
-   if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Able to bind as {$username}: dn is {$result[0]['dn']} and account ID is {$account_id}",0); }
-   ldap_close($auth_ldap_connection);
-   return $account_id;
+   preg_match("/{$LDAP['account_attribute']}=(.*?)(?:,|$)/",$result[0]['dn'],$dn_match);
+   if (isset($dn_match[1])) {
+     $account_id=$dn_match[1];
+     if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Able to bind as {$username}: dn is {$result[0]['dn']} and account ID is {$account_id}",0); }
+     ldap_close($auth_ldap_connection);
+     return $account_id;
+   } else {
+     if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Could not extract account ID from DN: {$result[0]['dn']}",0); }
+     ldap_close($auth_ldap_connection);
+     return FALSE;
+   }
   }
   else {
    if ($LDAP_DEBUG == TRUE) { error_log("$log_prefix Unable to bind as {$username}: " . ldap_error($auth_ldap_connection),0); }
