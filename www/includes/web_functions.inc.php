@@ -313,6 +313,11 @@ function render_menu() {
      <?php
      foreach ($MODULES as $module => $access) {
 
+      # Skip the logout module - it will be handled separately in navbar-right
+      if ($module == 'log_out') {
+        continue;
+      }
+
       # Handle site links modules (arrays) vs regular modules (strings)
       if (is_array($access)) {
         # Site links module
@@ -364,7 +369,23 @@ function render_menu() {
      ?>
      </ul>
      <ul class="nav navbar-nav navbar-right">
-      <li><a><?php if(isset($USER_ID)) { print $USER_ID; } ?></a></li>
+      <li><span class="navbar-text"><?php if(isset($USER_ID)) { print $USER_ID; } ?></span></li>
+      <?php
+      # Add logout link if user is validated and logout module exists
+      if ($VALIDATED == TRUE && isset($MODULES['log_out'])) {
+        $logout_access = $MODULES['log_out'];
+        $show_logout = TRUE;
+        
+        # Check if logout should be shown based on access level
+        if ($logout_access == 'admin' && $IS_ADMIN == FALSE) {
+          $show_logout = FALSE;
+        }
+        
+        if ($show_logout) {
+          print "<li><a href='{$SERVER_PATH}log_out/'>Log Out</a></li>\n";
+        }
+      }
+      ?>
      </ul>
    </div>
   </nav>
